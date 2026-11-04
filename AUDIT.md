@@ -39,9 +39,23 @@
 
 ## Доказательства (числа)
 
+### Боевой деплой
+
+```
+URL:            https://shah-hookah-bar.ru/d3/   (301 c /d3 — работает)
+HTTP:           200, console errors 0, bad requests 0, WebGL canvas: yes
+Метаданные:     canonical https://shah-hookah-bar.ru/d3/, og:image .../d3/og.jpg
+Ассеты:         /d3/_next/* кешируются max-age=31536000, immutable
+Adjacent:       https://shah-hookah-bar.ru/ → 200, /api/health → 200 {"ok":true,"demo":false}
+Мобильные меню/форма/кейсы на боевом URL — Playwright: 0 ошибок, overflow 0
+```
+
+### Сборка и локальные проверки
+
 ```
 BUILD: next build → ✓ Compiled successfully in 718ms, ✓ Generating static pages 3/3,
        TypeScript 0 ошибок, ESLint 0 ошибок (npm run lint, exit 0)
+STATIC EXPORT: STATIC_EXPORT=1 → out/ с basePath=/d3, 1.08 МБ архив, smoke 200/0 ошибок
 DESKTOP 1440×900: HTTP 200, scrollWidth 1440 = clientWidth, WebGL canvas: yes,
                   console errors: 0
 MOBILE 390×844:   HTTP 200, scrollWidth 390 = clientWidth, CTA виден (top 676, bottom 736),

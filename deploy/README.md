@@ -68,3 +68,13 @@ nginx -t && systemctl reload nginx
   локальная разработка продолжает работать на `http://localhost:4310/`.
 - Внутренние якоря (`#services`, `#contact`) и `next/link` уже учитывают `basePath`.
 - Если позже поменяется домен, пересобрать пакет с новым `-SiteUrl` и повторить заливку.
+- **Полный передеплой Шаха** (`deploy/deploy.sh` в его репозитории) перезаписывает
+  `/etc/nginx/sites-available/shah` и теряет строку `include /etc/nginx/snippets/d3.conf;`.
+  Сам сайт D3 в `/var/www/d3` при этом остаётся — после такого деплоя нужно один раз
+  вернуть include (повторный запуск `deploy-d3.sh` сделает это идемпотентно).
+  Штатный `update.sh` Шаха nginx не трогает — D3 продолжает работать.
+
+## Живой адрес
+
+https://shah-hookah-bar.ru/d3/ — проверено: 200, WebGL, console errors 0,
+`/api/health` Шаха 200, корень Шаха 200.

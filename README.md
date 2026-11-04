@@ -6,7 +6,9 @@
 
 ![D3 — превью](docs/preview.jpg)
 
-**http://localhost:4310** после запуска.
+**Живая версия:** https://shah-hookah-bar.ru/d3/ (static export на общем nginx,
+рядом с сайтом «Шах», без Node-процесса).
+**Локально:** http://localhost:4310 после запуска.
 
 ---
 
