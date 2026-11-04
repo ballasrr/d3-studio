@@ -1,0 +1,399 @@
+@import "tailwindcss";
+
+/* ============================================================
+   D3 — design tokens
+   Dark cinematic direction: near-black ink, liquid chrome,
+   one acid accent. Components never hard-code a hex value.
+   ============================================================ */
+
+:root {
+  /* surfaces */
+  --bg: oklch(14% 0.012 265);
+  --bg-deep: oklch(10.5% 0.012 265);
+  --bg-elev: oklch(19% 0.014 265);
+  --glass: oklch(97% 0.004 265 / 0.045);
+  --glass-strong: oklch(97% 0.004 265 / 0.08);
+
+  /* type */
+  --fg: oklch(97% 0.004 265);
+  --fg-muted: oklch(72% 0.01 265);
+  --fg-faint: oklch(63% 0.012 265);
+
+  /* strokes */
+  --line: oklch(97% 0.004 265 / 0.13);
+  --line-strong: oklch(97% 0.004 265 / 0.32);
+
+  /* palette */
+  --accent: oklch(85% 0.19 127);
+  --accent-ink: oklch(17% 0.04 127);
+  --accent-dim: oklch(62% 0.12 127);
+  --danger: oklch(72% 0.17 27);
+  --chrome-hi: oklch(99% 0.002 265);
+  --chrome-mid: oklch(86% 0.008 265);
+  --chrome-low: oklch(62% 0.014 265);
+
+  /* radii */
+  --radius-xs: 4px;
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+  --radius-pill: 999px;
+
+  /* elevation */
+  --shadow-lift: 0 40px 90px -55px rgba(0, 0, 0, 0.95);
+  --shadow-glow: 0 0 90px -24px oklch(85% 0.19 127 / 0.5);
+
+  /* rhythm */
+  --gutter: clamp(1.25rem, 4vw, 4.5rem);
+  --section-y: clamp(5.5rem, 10vw, 10rem);
+  --nav-h: 76px;
+
+  /* fluid type scale */
+  --step--1: clamp(0.75rem, 0.72rem + 0.14vw, 0.8125rem);
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
+  --step-1: clamp(1.125rem, 1.04rem + 0.42vw, 1.375rem);
+  --step-2: clamp(1.5rem, 1.3rem + 1vw, 2.125rem);
+  --step-3: clamp(2rem, 1.55rem + 2.2vw, 3.25rem);
+  --step-4: clamp(2.25rem, 1.6rem + 3.6vw, 5rem);
+  --step-5: clamp(3rem, 1.6rem + 7.2vw, 6.8rem);
+
+  /* easing */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* font stacks (self-hosted via @fontsource-variable, no Google CDN) */
+  --font-ui: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display-stack: "Unbounded Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono-stack: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, monospace;
+}
+
+@theme inline {
+  --font-sans: var(--font-ui);
+  --font-display: var(--font-display-stack);
+  --font-mono: var(--font-mono-stack);
+
+  --color-bg: var(--bg);
+  --color-bg-deep: var(--bg-deep);
+  --color-bg-elev: var(--bg-elev);
+  --color-fg: var(--fg);
+  --color-muted: var(--fg-muted);
+  --color-faint: var(--fg-faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-dim: var(--accent-dim);
+  --color-danger: var(--danger);
+  --color-glass: var(--glass);
+  --color-glass-strong: var(--glass-strong);
+
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+
+  --shadow-lift: var(--shadow-lift);
+  --shadow-glow: var(--shadow-glow);
+
+  --animate-marquee: marquee 42s linear infinite;
+  --animate-marquee-slow: marquee 70s linear infinite;
+  --animate-float: float 9s ease-in-out infinite;
+  --animate-pulse-soft: pulse-soft 3.2s ease-in-out infinite;
+  --animate-spin-slow: spin 22s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes pageIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes trace {
+  0% {
+    transform: translateX(-110%);
+  }
+  55%,
+  100% {
+    transform: translateX(260%);
+  }
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scrollbar-color: var(--line-strong) transparent;
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-ui), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+img,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+/* ============================================================
+   Custom utilities (Tailwind v4 @utility)
+   ============================================================ */
+
+@utility shell {
+  width: 100%;
+  max-width: 1600px;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+@utility section-y {
+  padding-block: var(--section-y);
+}
+
+@utility type-display {
+  font-family: var(--font-display-stack), ui-sans-serif, system-ui, sans-serif;
+  font-size: var(--step-5);
+  font-weight: 500;
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+}
+
+@utility type-h2 {
+  font-family: var(--font-display-stack), ui-sans-serif, system-ui, sans-serif;
+  font-size: var(--step-4);
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+
+@utility type-h3 {
+  font-family: var(--font-display-stack), ui-sans-serif, system-ui, sans-serif;
+  font-size: var(--step-2);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+}
+
+@utility type-lead {
+  font-size: var(--step-1);
+  line-height: 1.5;
+  letter-spacing: -0.012em;
+  color: var(--fg-muted);
+  font-weight: 400;
+}
+
+@utility type-body {
+  font-size: var(--step-0);
+  line-height: 1.65;
+  color: var(--fg-muted);
+  font-weight: 400;
+}
+
+@utility type-eyebrow {
+  font-family: var(--font-mono-stack), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+@utility type-label {
+  font-family: var(--font-mono-stack), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+@utility text-chrome {
+  background: linear-gradient(
+    168deg,
+    var(--chrome-hi) 0%,
+    var(--chrome-mid) 38%,
+    var(--chrome-low) 62%,
+    var(--chrome-hi) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility text-outline {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--line-strong);
+}
+
+@utility glass {
+  background: var(--glass);
+  border: 1px solid var(--line);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
+}
+
+@utility glass-strong {
+  background: var(--glass-strong);
+  border: 1px solid var(--line-strong);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  backdrop-filter: blur(28px) saturate(160%);
+}
+
+@utility hairline {
+  height: 1px;
+  width: 100%;
+  background: var(--line);
+}
+
+@utility grain {
+  /* inline SVG turbulence: no asset request, works under any basePath */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+  background-repeat: repeat;
+}
+
+@utility dot-field {
+  background-image: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--fg) 12%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 28px 28px;
+}
+
+@utility grid-field {
+  background-image:
+    linear-gradient(to right, var(--line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+  background-size: 88px 88px;
+}
+
+@utility edge-fade-x {
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+@utility edge-fade-y {
+  mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility accent-glow {
+  box-shadow: var(--shadow-glow);
+}
+
+/* Cursor spotlight: only when a precise pointer exists. */
+.cursor-glow {
+  display: none;
+}
+
+@media (pointer: fine) {
+  .cursor-glow {
+    display: block;
+  }
+}
+
+/* Short laptop screens (1024×768, 1280×800): the hero must still show the
+   stats row without scrolling, so the display scale steps down. */
+@media (min-width: 1024px) and (max-height: 820px) {
+  :root {
+    --step-5: clamp(3rem, 6.2vw, 5.5rem);
+  }
+}
+
+/* ============================================================
+   Reduced motion — every JS animation also checks this query.
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .marquee-track {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .cursor-glow {
+    display: none;
+  }
+
+  .animate-float,
+  .animate-pulse-soft,
+  .animate-spin-slow {
+    animation: none !important;
+  }
+}
