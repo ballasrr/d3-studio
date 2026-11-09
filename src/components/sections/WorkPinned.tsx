@@ -111,12 +111,20 @@ export default function WorkPinned() {
             className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-[var(--gutter)] pb-2 no-scrollbar [scroll-padding-inline:var(--gutter)] lg:min-h-0 lg:flex-1 lg:items-stretch lg:pb-0"
           >
             {work.items.map((item, i) => {
-              const cardClass =
-                "group flex w-[min(78vw,860px)] shrink-0 snap-start flex-col overflow-hidden rounded-[28px] border border-line bg-bg-elev transition-colors duration-200 hover:border-line-strong lg:h-full";
+              const isLanding = item.visual === "landing";
+              const cardClass = `group flex w-[min(78vw,860px)] shrink-0 snap-start flex-col overflow-hidden rounded-[28px] border border-line bg-bg-elev transition-colors duration-200 hover:border-line-strong ${
+                isLanding ? "lg:h-auto lg:self-center" : "lg:h-full"
+              }`;
 
               const content = (
                 <>
-                  <div className="relative h-[210px] shrink-0 overflow-hidden border-b border-line bg-bg-deep md:h-[240px] lg:h-auto lg:min-h-[160px] lg:flex-1">
+                  <div
+                    className={`relative h-[210px] shrink-0 overflow-hidden border-b border-line bg-bg-deep md:h-[240px] ${
+                      isLanding
+                        ? "lg:aspect-[2000/780] lg:h-auto lg:min-h-0 lg:flex-none"
+                        : "lg:h-auto lg:min-h-[160px] lg:flex-1"
+                    }`}
+                  >
                     <div className="h-full w-full origin-center transition-transform duration-500 ease-out group-hover:scale-[1.02]">
                       <CaseVisual visual={item.visual} tone={item.tone} />
                     </div>

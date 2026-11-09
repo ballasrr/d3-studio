@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image, { type StaticImageData } from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
@@ -25,6 +25,14 @@ const SHAH_GALLERY = [
   { src: shahFind, alt: "Страница «Как нас найти»", caption: "Как нас найти" },
   { src: shahBooking, alt: "Бронирование стола", caption: "Бронь стола" },
   { src: shahAtmosphere, alt: "Атмосфера зала", caption: "Атмосфера" },
+] as const;
+
+const ASKO_GALLERY = [
+  {
+    src: askoShot,
+    alt: "Админ-панель Asko Support: отзывы сети АЗС и ЭЗС",
+    caption: "Отзывы, фильтры и статистика",
+  },
 ] as const;
 
 const DOMAINS: Record<CaseStudy["visual"], string> = {
@@ -131,24 +139,57 @@ function PhoneFrame({ children, className = "" }: { children: ReactNode; classNa
 
 /** 1 · АСКО PLUS / Asko Support — real admin screenshot (internal project). */
 function DashboardMockup() {
+  const { active, setActive, closeRef } = usePhotoLightbox(ASKO_GALLERY.length);
+
   return (
-    <Window path={DOMAINS.dashboard}>
-      <div className="relative h-full w-full overflow-hidden bg-bg-deep">
-        <Image
-          src={askoShot}
-          alt="Админ-панель Asko Support: отзывы сети АЗС и ЭЗС"
-          fill
-          sizes="(max-width: 1024px) 92vw, 860px"
-          className="object-cover object-top"
-        />
-      </div>
-    </Window>
+    <>
+      <Window path={DOMAINS.dashboard}>
+        <div className="relative h-full w-full overflow-hidden bg-bg-deep">
+          <button
+            type="button"
+            onClick={() => setActive(0)}
+            aria-label="Открыть скриншот админ-панели АСКО PLUS"
+            className="group/photo absolute inset-0 block cursor-zoom-in"
+          >
+            <Image
+              src={askoShot}
+              alt="Админ-панель Asko Support: отзывы сети АЗС и ЭЗС"
+              fill
+              sizes="(max-width: 1024px) 92vw, 860px"
+              className="object-cover object-top transition-transform duration-500 group-hover/photo:scale-[1.02]"
+            />
+            <span className="pointer-events-none absolute right-2 top-2 rounded-full border border-line-strong bg-bg-deep/85 px-2 py-1 font-mono text-[0.4375rem] uppercase tracking-[0.08em] text-fg opacity-0 backdrop-blur transition-opacity group-hover/photo:opacity-100">
+              Скриншот · открыть
+            </span>
+          </button>
+        </div>
+      </Window>
+
+      {active !== null
+        ? createPortal(
+            <PhotoLightbox
+              index={active}
+              images={ASKO_GALLERY}
+              title="АСКО PLUS"
+              closeRef={closeRef}
+              onClose={() => setActive(null)}
+              onPrev={() => setActive(0)}
+              onNext={() => setActive(0)}
+              onSelect={() => setActive(0)}
+            />,
+            document.body,
+          )
+        : null}
+    </>
   );
 }
 
 /** 2 · ШАХ LOUNGE — real screenshots of the site with a lightbox. */
-function ShahLightbox({
+function PhotoLightbox({
   index,
+  images,
+  title,
+  siteUrl,
   closeRef,
   onClose,
   onPrev,
@@ -156,20 +197,24 @@ function ShahLightbox({
   onSelect,
 }: {
   index: number;
+  images: readonly { src: StaticImageData; alt: string; caption: string }[];
+  title: string;
+  siteUrl?: string;
   closeRef: React.RefObject<HTMLButtonElement | null>;
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
   onSelect: (index: number) => void;
 }) {
-  const shot = SHAH_GALLERY[index];
+  const shot = images[index];
+  const hasMany = images.length > 1;
 
   return (
     <div
       className="fixed inset-0 z-[200] flex flex-col bg-bg-deep/95 backdrop-blur-md"
       role="dialog"
       aria-modal="true"
-      aria-label="Фотографии сайта ШАХ LOUNGE"
+      aria-label={`Фотографии проекта ${title}`}
       onClick={onClose}
     >
       <div
@@ -178,20 +223,23 @@ function ShahLightbox({
       >
         <div className="min-w-0">
           <span className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-accent">
-            ШАХ LOUNGE · {index + 1} / {SHAH_GALLERY.length}
+            {title}
+            {hasMany ? ` · ${index + 1} / ${images.length}` : ""}
           </span>
           <p className="mt-1 truncate text-sm text-fg">{shot.caption}</p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <a
-            href="https://shah-hookah-bar.ru/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden items-center gap-1.5 rounded-full border border-line-strong px-3 py-1.5 font-mono text-[0.6875rem] uppercase tracking-[0.08em] text-fg transition-colors hover:border-accent hover:text-accent sm:inline-flex"
-          >
-            Перейти на сайт
-            <ArrowUpRight aria-hidden className="size-3.5" />
-          </a>
+          {siteUrl ? (
+            <a
+              href={siteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden items-center gap-1.5 rounded-full border border-line-strong px-3 py-1.5 font-mono text-[0.6875rem] uppercase tracking-[0.08em] text-fg transition-colors hover:border-accent hover:text-accent sm:inline-flex"
+            >
+              Перейти на сайт
+              <ArrowUpRight aria-hidden className="size-3.5" />
+            </a>
+          ) : null}
           <button
             ref={closeRef}
             type="button"
@@ -208,14 +256,16 @@ function ShahLightbox({
         className="relative flex min-h-0 flex-1 items-center justify-center p-4 md:p-8"
         onClick={(event) => event.stopPropagation()}
       >
-        <button
-          type="button"
-          onClick={onPrev}
-          aria-label="Предыдущее фото"
-          className="absolute left-2 top-1/2 z-10 grid size-11 -translate-y-1/2 place-items-center rounded-full border border-line bg-bg-deep/80 text-fg backdrop-blur transition-colors hover:border-accent hover:text-accent md:left-6"
-        >
-          <ArrowRight aria-hidden className="size-5 rotate-180" />
-        </button>
+        {hasMany ? (
+          <button
+            type="button"
+            onClick={onPrev}
+            aria-label="Предыдущее фото"
+            className="absolute left-2 top-1/2 z-10 grid size-11 -translate-y-1/2 place-items-center rounded-full border border-line bg-bg-deep/80 text-fg backdrop-blur transition-colors hover:border-accent hover:text-accent md:left-6"
+          >
+            <ArrowRight aria-hidden className="size-5 rotate-180" />
+          </button>
+        ) : null}
 
         <Image
           src={shot.src}
@@ -223,35 +273,39 @@ function ShahLightbox({
           className="max-h-full w-auto max-w-full rounded-lg border border-line object-contain"
         />
 
-        <button
-          type="button"
-          onClick={onNext}
-          aria-label="Следующее фото"
-          className="absolute right-2 top-1/2 z-10 grid size-11 -translate-y-1/2 place-items-center rounded-full border border-line bg-bg-deep/80 text-fg backdrop-blur transition-colors hover:border-accent hover:text-accent md:right-6"
-        >
-          <ArrowRight aria-hidden className="size-5" />
-        </button>
+        {hasMany ? (
+          <button
+            type="button"
+            onClick={onNext}
+            aria-label="Следующее фото"
+            className="absolute right-2 top-1/2 z-10 grid size-11 -translate-y-1/2 place-items-center rounded-full border border-line bg-bg-deep/80 text-fg backdrop-blur transition-colors hover:border-accent hover:text-accent md:right-6"
+          >
+            <ArrowRight aria-hidden className="size-5" />
+          </button>
+        ) : null}
       </div>
 
-      <div className="flex items-center justify-center gap-2 border-t border-line px-4 py-3">
-        {SHAH_GALLERY.map((item, i) => (
-          <button
-            key={item.caption}
-            type="button"
-            aria-label={`Фото ${i + 1}: ${item.caption}`}
-            aria-current={i === index}
-            onClick={() => onSelect(i)}
-            className={`h-1.5 w-8 rounded-full transition-colors ${
-              i === index ? "bg-accent" : "bg-line-strong hover:bg-fg/40"
-            }`}
-          />
-        ))}
-      </div>
+      {hasMany ? (
+        <div className="flex items-center justify-center gap-2 border-t border-line px-4 py-3">
+          {images.map((item, i) => (
+            <button
+              key={item.caption}
+              type="button"
+              aria-label={`Фото ${i + 1}: ${item.caption}`}
+              aria-current={i === index}
+              onClick={() => onSelect(i)}
+              className={`h-1.5 w-8 rounded-full transition-colors ${
+                i === index ? "bg-accent" : "bg-line-strong hover:bg-fg/40"
+              }`}
+            />
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }
 
-function LandingMockup() {
+function usePhotoLightbox(length: number) {
   const [active, setActive] = useState<number | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -259,11 +313,11 @@ function LandingMockup() {
     if (active === null) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setActive(null);
-      if (event.key === "ArrowRight") {
-        setActive((i) => (i === null ? i : (i + 1) % SHAH_GALLERY.length));
+      if (length > 1 && event.key === "ArrowRight") {
+        setActive((i) => (i === null ? i : (i + 1) % length));
       }
-      if (event.key === "ArrowLeft") {
-        setActive((i) => (i === null ? i : (i - 1 + SHAH_GALLERY.length) % SHAH_GALLERY.length));
+      if (length > 1 && event.key === "ArrowLeft") {
+        setActive((i) => (i === null ? i : (i - 1 + length) % length));
       }
     };
     const previous = document.body.style.overflow;
@@ -274,7 +328,13 @@ function LandingMockup() {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = previous;
     };
-  }, [active]);
+  }, [active, length]);
+
+  return { active, setActive, closeRef };
+}
+
+function LandingMockup() {
+  const { active, setActive, closeRef } = usePhotoLightbox(SHAH_GALLERY.length);
 
   return (
     <>
@@ -337,8 +397,11 @@ function LandingMockup() {
 
       {active !== null
         ? createPortal(
-            <ShahLightbox
+            <PhotoLightbox
               index={active}
+              images={SHAH_GALLERY}
+              title="ШАХ LOUNGE"
+              siteUrl="https://shah-hookah-bar.ru/"
               closeRef={closeRef}
               onClose={() => setActive(null)}
               onPrev={() =>
