@@ -1,7 +1,11 @@
+"use client";
+
 import Image from "next/image";
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 import type { CaseStudy } from "@/content/site";
+import { ArrowRight, ArrowUpRight, Close } from "@/components/ui/icons";
 
 import shahAtmosphere from "@/assets/cases/shah-atmosphere.jpg";
 import shahBooking from "@/assets/cases/shah-booking.jpg";
@@ -15,10 +19,11 @@ import shahHero from "@/assets/cases/shah-hero.jpg";
 /* E13-CHARGE.                                                         */
 /* ------------------------------------------------------------------ */
 
-const SHAH_SHOTS = [
-  { src: shahFind, alt: "Страница «Как нас найти»" },
-  { src: shahBooking, alt: "Бронь стола" },
-  { src: shahAtmosphere, alt: "Атмосфера зала" },
+const SHAH_GALLERY = [
+  { src: shahHero, alt: "Главный экран сайта ШАХ LOUNGE", caption: "Главный экран" },
+  { src: shahFind, alt: "Страница «Как нас найти»", caption: "Как нас найти" },
+  { src: shahBooking, alt: "Бронирование стола", caption: "Бронь стола" },
+  { src: shahAtmosphere, alt: "Атмосфера зала", caption: "Атмосфера" },
 ] as const;
 
 const DOMAINS: Record<CaseStudy["visual"], string> = {
@@ -304,43 +309,205 @@ function DashboardMockup() {
   );
 }
 
-/** 2 · ШАХ LOUNGE — hookah lounge / coffee house site, Makhachkala. */
-function LandingMockup() {
+/** 2 · ШАХ LOUNGE — real screenshots of the site with a lightbox. */
+function ShahLightbox({
+  index,
+  closeRef,
+  onClose,
+  onPrev,
+  onNext,
+  onSelect,
+}: {
+  index: number;
+  closeRef: React.RefObject<HTMLButtonElement | null>;
+  onClose: () => void;
+  onPrev: () => void;
+  onNext: () => void;
+  onSelect: (index: number) => void;
+}) {
+  const shot = SHAH_GALLERY[index];
+
   return (
-    <Window path={DOMAINS.landing}>
-      <div className="relative h-full w-full overflow-hidden bg-bg-deep">
-        <Image
-          src={shahHero}
-          alt="Главный экран сайта ШАХ LOUNGE"
-          fill
-          sizes="(max-width: 1024px) 92vw, 860px"
-          className="object-cover object-top"
-        />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-deep via-bg-deep/35 to-transparent" />
-
-        <div className="absolute inset-x-3 bottom-3 flex items-end justify-between gap-3">
-          <div className="min-w-0">
-            <span className="font-mono text-[0.4375rem] uppercase tracking-[0.14em] text-accent">
-              Сайт · shah-hookah-bar.ru
-            </span>
-            <p className="mt-1 font-display text-[0.75rem] leading-[1.1] tracking-[-0.02em] text-fg md:text-[0.9375rem]">
-              Кальянная и кофейня в Махачкале
-            </p>
-          </div>
-
-          <div className="hidden shrink-0 items-center gap-1.5 md:flex">
-            {SHAH_SHOTS.map((shot) => (
-              <span
-                key={shot.alt}
-                className="relative block h-9 w-14 overflow-hidden rounded-[4px] border border-line-strong/70 bg-bg-deep"
-              >
-                <Image src={shot.src} alt={shot.alt} fill sizes="56px" className="object-cover" />
-              </span>
-            ))}
-          </div>
+    <div
+      className="fixed inset-0 z-[200] flex flex-col bg-bg-deep/95 backdrop-blur-md"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Фотографии сайта ШАХ LOUNGE"
+      onClick={onClose}
+    >
+      <div
+        className="flex items-center justify-between gap-4 border-b border-line px-4 py-3 md:px-6"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="min-w-0">
+          <span className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-accent">
+            ШАХ LOUNGE · {index + 1} / {SHAH_GALLERY.length}
+          </span>
+          <p className="mt-1 truncate text-sm text-fg">{shot.caption}</p>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <a
+            href="https://shah-hookah-bar.ru/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden items-center gap-1.5 rounded-full border border-line-strong px-3 py-1.5 font-mono text-[0.6875rem] uppercase tracking-[0.08em] text-fg transition-colors hover:border-accent hover:text-accent sm:inline-flex"
+          >
+            Перейти на сайт
+            <ArrowUpRight aria-hidden className="size-3.5" />
+          </a>
+          <button
+            ref={closeRef}
+            type="button"
+            onClick={onClose}
+            aria-label="Закрыть фотографии"
+            className="grid size-11 place-items-center rounded-full border border-line text-fg transition-colors hover:border-accent hover:text-accent"
+          >
+            <Close aria-hidden className="size-5" />
+          </button>
         </div>
       </div>
-    </Window>
+
+      <div
+        className="relative flex min-h-0 flex-1 items-center justify-center p-4 md:p-8"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={onPrev}
+          aria-label="Предыдущее фото"
+          className="absolute left-2 top-1/2 z-10 grid size-11 -translate-y-1/2 place-items-center rounded-full border border-line bg-bg-deep/80 text-fg backdrop-blur transition-colors hover:border-accent hover:text-accent md:left-6"
+        >
+          <ArrowRight aria-hidden className="size-5 rotate-180" />
+        </button>
+
+        <Image
+          src={shot.src}
+          alt={shot.alt}
+          className="max-h-full w-auto max-w-full rounded-lg border border-line object-contain"
+        />
+
+        <button
+          type="button"
+          onClick={onNext}
+          aria-label="Следующее фото"
+          className="absolute right-2 top-1/2 z-10 grid size-11 -translate-y-1/2 place-items-center rounded-full border border-line bg-bg-deep/80 text-fg backdrop-blur transition-colors hover:border-accent hover:text-accent md:right-6"
+        >
+          <ArrowRight aria-hidden className="size-5" />
+        </button>
+      </div>
+
+      <div className="flex items-center justify-center gap-2 border-t border-line px-4 py-3">
+        {SHAH_GALLERY.map((item, i) => (
+          <button
+            key={item.caption}
+            type="button"
+            aria-label={`Фото ${i + 1}: ${item.caption}`}
+            aria-current={i === index}
+            onClick={() => onSelect(i)}
+            className={`h-1.5 w-8 rounded-full transition-colors ${
+              i === index ? "bg-accent" : "bg-line-strong hover:bg-fg/40"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function LandingMockup() {
+  const [active, setActive] = useState<number | null>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (active === null) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setActive(null);
+      if (event.key === "ArrowRight") {
+        setActive((i) => (i === null ? i : (i + 1) % SHAH_GALLERY.length));
+      }
+      if (event.key === "ArrowLeft") {
+        setActive((i) => (i === null ? i : (i - 1 + SHAH_GALLERY.length) % SHAH_GALLERY.length));
+      }
+    };
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    closeRef.current?.focus();
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previous;
+    };
+  }, [active]);
+
+  return (
+    <>
+      <Window path={DOMAINS.landing}>
+        <div className="relative h-full w-full overflow-hidden bg-bg-deep">
+          <button
+            type="button"
+            onClick={() => setActive(0)}
+            aria-label="Открыть фотографии сайта ШАХ LOUNGE"
+            className="group/photo absolute inset-0 block cursor-zoom-in"
+          >
+            <Image
+              src={shahHero}
+              alt="Главный экран сайта ШАХ LOUNGE"
+              fill
+              sizes="(max-width: 1024px) 92vw, 860px"
+              className="object-cover object-top transition-transform duration-500 group-hover/photo:scale-[1.02]"
+            />
+            <span className="pointer-events-none absolute right-2 top-2 rounded-full border border-line-strong bg-bg-deep/85 px-2 py-1 font-mono text-[0.4375rem] uppercase tracking-[0.08em] text-fg opacity-0 backdrop-blur transition-opacity group-hover/photo:opacity-100">
+              {SHAH_GALLERY.length} фото
+            </span>
+          </button>
+
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-deep via-bg-deep/35 to-transparent" />
+
+          <div className="pointer-events-none absolute inset-x-3 bottom-3 flex items-end justify-between gap-3">
+            <div className="min-w-0">
+              <span className="font-mono text-[0.4375rem] uppercase tracking-[0.14em] text-accent">
+                Сайт · shah-hookah-bar.ru
+              </span>
+              <p className="mt-1 font-display text-[0.75rem] leading-[1.1] tracking-[-0.02em] text-fg md:text-[0.9375rem]">
+                Кальянная и кофейня в Махачкале
+              </p>
+            </div>
+
+            <div className="pointer-events-auto hidden shrink-0 items-center gap-1.5 md:flex">
+              {SHAH_GALLERY.slice(1).map((shot, index) => (
+                <button
+                  key={shot.caption}
+                  type="button"
+                  onClick={() => setActive(index + 1)}
+                  aria-label={`Открыть фото: ${shot.caption}`}
+                  className="relative block h-9 w-14 overflow-hidden rounded-[4px] border border-line-strong/70 bg-bg-deep transition-transform duration-150 hover:scale-105 hover:border-accent"
+                >
+                  <Image src={shot.src} alt="" fill sizes="56px" className="object-cover" />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Window>
+
+      {active !== null
+        ? createPortal(
+            <ShahLightbox
+              index={active}
+              closeRef={closeRef}
+              onClose={() => setActive(null)}
+              onPrev={() =>
+                setActive((i) => (i === null ? i : (i - 1 + SHAH_GALLERY.length) % SHAH_GALLERY.length))
+              }
+              onNext={() =>
+                setActive((i) => (i === null ? i : (i + 1) % SHAH_GALLERY.length))
+              }
+              onSelect={(index) => setActive(index)}
+            />,
+            document.body,
+          )
+        : null}
+    </>
   );
 }
 

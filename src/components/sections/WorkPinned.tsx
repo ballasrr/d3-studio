@@ -162,34 +162,27 @@ export default function WorkPinned() {
                           </li>
                         ))}
                       </ul>
+                      <span className="type-label hidden shrink-0 sm:inline">
+                        Проект {pad(i + 1)}
+                      </span>
                       {item.url ? (
-                        <span className="type-label flex shrink-0 items-center gap-1.5 text-accent">
-                          Открыть сайт
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Перейти на сайт ${item.client}`}
+                          className="type-label inline-flex shrink-0 items-center gap-1.5 rounded-full border border-line-strong px-3 py-1.5 text-fg transition-colors duration-150 hover:border-accent hover:text-accent"
+                        >
+                          Перейти на сайт
                           <ArrowUpRight aria-hidden className="size-3.5" />
-                        </span>
-                      ) : (
-                        <span className="type-label hidden shrink-0 sm:inline">
-                          Проект {pad(i + 1)}
-                        </span>
-                      )}
+                        </a>
+                      ) : null}
                     </div>
                   </div>
                 </>
               );
 
-              return item.url ? (
-                <a
-                  key={item.id}
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`Открыть сайт ${item.client}`}
-                  draggable={false}
-                  className={`${cardClass} cursor-pointer`}
-                >
-                  {content}
-                </a>
-              ) : (
+              return (
                 <article key={item.id} className={cardClass}>
                   {content}
                 </article>
