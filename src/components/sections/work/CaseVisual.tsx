@@ -352,14 +352,14 @@ function LandingMockup() {
               aria-hidden
               fill
               sizes="(max-width: 1024px) 92vw, 860px"
-              className="scale-110 object-cover object-top opacity-60 blur-2xl"
+              className="scale-110 object-cover object-center opacity-50 blur-2xl"
             />
             <Image
               src={shahFull}
-              alt="Главный экран сайта ШАХ LOUNGE"
+              alt="Сайт ШАХ LOUNGE"
               fill
               sizes="(max-width: 1024px) 92vw, 860px"
-              className="object-contain object-top transition-transform duration-500 group-hover/photo:scale-[1.02]"
+              className="object-contain object-center transition-transform duration-500 group-hover/photo:scale-[1.02]"
             />
             <span className="pointer-events-none absolute right-2 top-2 rounded-full border border-line-strong bg-bg-deep/85 px-2 py-1 font-mono text-[0.4375rem] uppercase tracking-[0.08em] text-fg opacity-0 backdrop-blur transition-opacity group-hover/photo:opacity-100">
               {SHAH_GALLERY.length} фото
