@@ -5,14 +5,16 @@ import type { CaseStudy } from "@/content/site";
 /* ------------------------------------------------------------------ */
 /* Case visuals are built from DOM + inline SVG: browser chrome, real  */
 /* Russian UI labels, charts, tables and price grids. No raster art.   */
+/* D3 portfolio: Asko Support, ШАХ LOUNGE, E13-WASH, E13-CHARGE,       */
+/* E13-MONITORING / EVMap.                                             */
 /* ------------------------------------------------------------------ */
 
 const DOMAINS: Record<CaseStudy["visual"], string> = {
-  dashboard: "orbita.ru/cabinet",
-  landing: "sever-kvartal.ru",
-  commerce: "stravinsky.store",
-  mobile: "axiom.finance/app",
-  configurator: "molot-pro.ru/configurator",
+  dashboard: "review.asko-plus.ru/admin",
+  landing: "shah-hookah-bar.ru",
+  commerce: "E13-WASH · терминал",
+  mobile: "E13-CHARGE · приложение",
+  configurator: "E13-MONITORING · EVMap",
 };
 
 /** Tone backdrops use design tokens only — gradients are built from CSS vars. */
@@ -45,26 +47,60 @@ function LockIcon() {
   );
 }
 
-function PlayGlyph() {
+function StarGlyph({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className="size-1.5" fill="currentColor" aria-hidden>
-      <path d="M8 5.5v13l11-6.5-11-6.5Z" />
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={className}>
+      <path d="m12 3 2.7 5.7 6.3.8-4.6 4.3 1.2 6.2L12 17l-5.6 3 1.2-6.2L3 9.5l6.3-.8L12 3Z" />
     </svg>
   );
 }
 
-function SearchIcon() {
+/** Neon lounge line: a doorway arch with a hookah silhouette. */
+function HookahGlyph({ className = "" }: { className?: string }) {
   return (
     <svg
-      viewBox="0 0 24 24"
-      className="size-2 shrink-0"
+      viewBox="0 0 160 120"
       fill="none"
       stroke="currentColor"
-      strokeWidth={2}
+      strokeWidth="1.3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       aria-hidden
+      className={className}
     >
-      <circle cx="11" cy="11" r="6" />
-      <path d="m16 16 4 4" />
+      <path d="M34 110V56a46 46 0 0 1 92 0v54" />
+      <path d="M43 110V57a37 37 0 0 1 74 0v53" opacity="0.55" />
+      <path d="M80 101v-17" />
+      <ellipse cx="80" cy="101" rx="10" ry="3" />
+      <path d="M74 84h12l-2-5h-8l-2 5Z" />
+      <circle cx="80" cy="74" r="4" />
+      <path d="M88 87c12 0 18 6 17 14" opacity="0.8" />
+      <path d="M66 26v-6M64 23h4" opacity="0.7" />
+      <circle cx="52" cy="42" r="1.2" fill="currentColor" />
+      <circle cx="110" cy="36" r="1" fill="currentColor" />
+    </svg>
+  );
+}
+
+/** Robotic wash: side-view car with water drops. */
+function CarWashGlyph({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 96 48"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      className={className}
+    >
+      <path d="M8 34c0-3.6 2.4-6 6.2-6.6l6.4-7.6c1.6-1.9 3.8-2.8 6.2-2.8h14.6c2.6 0 5 .9 6.7 2.6l7 7.4h9.5c3.4 0 6.2 2.8 6.4 6.2V38H8v-4Z" />
+      <path d="M34 17.6h11.4c1.7 0 3.2.6 4.4 1.8l5 5.2" opacity="0.7" />
+      <circle cx="27" cy="38" r="5" />
+      <circle cx="70" cy="38" r="5" />
+      <path d="M20 8c0-2 1.2-3.4 2.6-3.4S25.2 6 25.2 8c0 1.8-2.6 4-2.6 4S20 9.8 20 8Z" opacity="0.8" />
+      <path d="M39 6c0-2 1.2-3.4 2.6-3.4S44.2 4 44.2 6c0 1.8-2.6 4-2.6 4S39 7.8 39 6Z" opacity="0.55" />
     </svg>
   );
 }
@@ -118,84 +154,41 @@ function Bars({
   );
 }
 
-function SneakerGlyph({ className = "" }: { className?: string }) {
+function PhoneFrame({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <svg
-      viewBox="0 0 88 44"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-      className={className}
+    <div
+      className={`relative flex h-[88%] aspect-[9/18] flex-col overflow-hidden rounded-[16px] border border-line-strong/70 bg-bg-elev p-[3px] shadow-[var(--shadow-lift)] ${className}`}
     >
-      <path d="M8 34c0-3.4 2.4-5.6 6.4-6.6l9.4-8.2c2-1.8 4.4-1.8 6.2.2l4.6 4.4 13.6 3.8C55 29.5 59 31 59 34H8Z" />
-      <path d="M24 18.8 20 27M31 17l-3.6 8.6" />
-      <path d="M8 34h55" />
-    </svg>
-  );
-}
-
-function BuildingGlyph({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 160 96"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1"
-      strokeLinejoin="round"
-      aria-hidden
-      className={className}
-    >
-      <path d="M14 82 80 48l66 34" opacity="0.45" />
-      <path d="M30 74V44l22-11 22 11v30" />
-      <path d="M30 44l22-11 22 11" opacity="0.6" />
-      <path d="M37 55h7M37 63h7M37 71h7M52 50v24" opacity="0.8" />
-      <path d="M88 78V38l19-9.5L126 38v40" />
-      <path d="M88 38l19-9.5L126 38" opacity="0.6" />
-      <path d="M96 49h7M96 57h7M96 65h7M109 49h7M109 57h7M109 65h7" opacity="0.8" />
-      <path d="M60 84h44" opacity="0.35" />
-    </svg>
-  );
-}
-
-function DeskGlyph({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 150 96"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.1"
-      strokeLinejoin="round"
-      aria-hidden
-      className={className}
-    >
-      <path d="M22 46 75 22l53 24-53 24-53-24Z" />
-      <path d="M22 46v6l53 24 53-24v-6" opacity="0.7" />
-      <path d="M38 56v22M112 56v22M62 67v20M88 67v20" opacity="0.75" />
-      <path d="M22 84h36M92 84h36" opacity="0.4" />
-      <path d="M22 34v12M128 34v12" opacity="0.5" />
-      <path d="M18 40h8M124 40h8" opacity="0.5" />
-    </svg>
+      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-[13px] bg-bg-deep">
+        <span aria-hidden className="mx-auto mt-1 h-[3px] w-8 shrink-0 rounded-full bg-line-strong" />
+        {children}
+      </div>
+    </div>
   );
 }
 
 /* --------------------------- case mockups --------------------------- */
 
+/** 1 · АСКО PLUS / Asko Support — review admin for a fuel + EV-charge network. */
 function DashboardMockup() {
-  const nav = ["Обзор", "Заявки", "Рейсы", "Документы", "Оплаты", "Парк"];
+  const nav = ["Отзывы", "Станции", "Менеджеры", "Статистика", "Настройки"];
+
+  const kpis: { label: string; value: string; delta?: string; star?: boolean }[] = [
+    { label: "Новые", value: "24", delta: "+6" },
+    { label: "Обработано", value: "118", delta: "+12" },
+    { label: "Средняя", value: "4,8", star: true },
+  ];
 
   return (
     <Window path={DOMAINS.dashboard}>
       <div className="flex h-full">
-        <aside className="hidden w-[21%] shrink-0 flex-col border-r border-line p-3 md:flex">
+        <aside className="hidden w-[22%] shrink-0 flex-col border-r border-line p-3 md:flex">
           <div className="flex items-center gap-1.5">
             <span className="grid size-4 place-items-center rounded-[3px] bg-accent font-display text-[0.5rem] font-semibold leading-none text-accent-ink">
-              O
+              А
             </span>
             <span className="font-display text-[0.5rem] font-medium uppercase tracking-[0.16em] text-fg">
-              ORBITA
+              АСКО
             </span>
           </div>
           <div className="mt-4 flex flex-col gap-1">
@@ -203,11 +196,11 @@ function DashboardMockup() {
               <span
                 key={label}
                 className={`flex h-[18px] items-center gap-1.5 rounded-[4px] px-1.5 text-[0.5rem] leading-none ${
-                  i === 1 ? "bg-glass text-fg" : "text-faint"
+                  i === 0 ? "bg-glass text-fg" : "text-faint"
                 }`}
               >
                 <span
-                  className={`size-1 rounded-full ${i === 1 ? "bg-accent" : "bg-line-strong"}`}
+                  className={`size-1 rounded-full ${i === 0 ? "bg-accent" : "bg-line-strong"}`}
                 />
                 {label}
               </span>
@@ -215,10 +208,10 @@ function DashboardMockup() {
           </div>
           <div className="mt-auto rounded-[5px] border border-line p-2">
             <span className="block font-mono text-[0.4375rem] uppercase leading-none tracking-[0.08em] text-faint">
-              Свободно
+              Онлайн
             </span>
             <span className="mt-1 block font-display text-[0.625rem] leading-none text-fg">
-              12 / 24
+              4 / 5
             </span>
           </div>
         </aside>
@@ -227,23 +220,19 @@ function DashboardMockup() {
           <div className="flex items-start justify-between gap-2">
             <div>
               <span className="block font-mono text-[0.4375rem] uppercase leading-none tracking-[0.14em] text-faint">
-                Рабочий стол
+                Модерация · Asko Support
               </span>
               <span className="mt-1 block font-display text-[0.625rem] leading-none text-fg">
-                Заявки на перевозку
+                Отзывы клиентов
               </span>
             </div>
             <span className="shrink-0 rounded-[4px] bg-accent px-2 py-1 font-mono text-[0.4375rem] uppercase leading-none tracking-[0.06em] text-accent-ink">
-              + Заявка
+              + Ссылка
             </span>
           </div>
 
           <div className="mt-2.5 grid shrink-0 grid-cols-3 gap-1.5">
-            {[
-              { label: "Активные", value: "24", delta: "+6" },
-              { label: "В пути", value: "8", delta: "+2" },
-              { label: "Ср. подача", value: "2ч 14м", delta: "−11%" },
-            ].map((kpi) => (
+            {kpis.map((kpi) => (
               <div key={kpi.label} className="rounded-[5px] border border-line bg-bg/40 p-1.5">
                 <span className="block font-mono text-[0.4375rem] uppercase leading-none tracking-[0.06em] text-faint">
                   {kpi.label}
@@ -252,9 +241,13 @@ function DashboardMockup() {
                   <span className="font-display text-[0.625rem] leading-none text-fg">
                     {kpi.value}
                   </span>
-                  <span className="font-mono text-[0.4375rem] leading-none text-accent">
-                    {kpi.delta}
-                  </span>
+                  {kpi.star ? (
+                    <StarGlyph className="size-2 text-accent" />
+                  ) : (
+                    <span className="font-mono text-[0.4375rem] leading-none text-accent">
+                      {kpi.delta}
+                    </span>
+                  )}
                 </span>
               </div>
             ))}
@@ -264,7 +257,7 @@ function DashboardMockup() {
             <div className="flex flex-col rounded-[5px] border border-line bg-bg/40 p-2">
               <div className="flex shrink-0 items-center justify-between">
                 <span className="font-mono text-[0.4375rem] uppercase tracking-[0.06em] text-faint">
-                  Рейсы за неделю
+                  Отзывы за неделю
                 </span>
                 <span className="font-mono text-[0.4375rem] leading-none text-fg">318</span>
               </div>
@@ -294,20 +287,22 @@ function DashboardMockup() {
               </span>
               <div className="mt-1.5 flex flex-col gap-1.5 md:flex-1 md:justify-between">
                 {[
-                  { id: "№1842", route: "Москва — Казань", state: "В пути" },
-                  { id: "№1841", route: "Тверь — СПб", state: "Оплачен" },
-                  { id: "№1840", route: "Мск — Сочи", state: "Новая" },
+                  { id: "№1842", place: "АЗС №12", stars: 5, state: "Принято" },
+                  { id: "№1841", place: "ЭЗС №4", stars: 4, state: "В работе" },
+                  { id: "№1840", place: "АЗС №7", stars: 5, state: "Новый" },
                 ].map((row) => (
                   <div
                     key={row.id}
-                    className="flex items-center justify-between gap-2 border-b border-line pb-1.5 last:border-b-0 last:pb-0"
+                    className="flex items-center justify-between gap-1.5 border-b border-line pb-1.5 last:border-b-0 last:pb-0"
                   >
                     <span className="min-w-0">
-                      <span className="block font-mono text-[0.4375rem] leading-none text-fg">
-                        {row.id}
+                      <span className="block truncate font-mono text-[0.4375rem] leading-none text-fg">
+                        {row.id} · {row.place}
                       </span>
-                      <span className="mt-0.5 block truncate text-[0.4375rem] leading-none text-faint">
-                        {row.route}
+                      <span className="mt-1 flex items-center gap-[1px] text-accent">
+                        {Array.from({ length: row.stars }).map((_, i) => (
+                          <StarGlyph key={i} className="size-1.5" />
+                        ))}
                       </span>
                     </span>
                     <span className="shrink-0 rounded-full border border-line px-1 py-0.5 font-mono text-[0.375rem] uppercase leading-none tracking-[0.02em] text-muted">
@@ -324,83 +319,80 @@ function DashboardMockup() {
   );
 }
 
+/** 2 · ШАХ LOUNGE — hookah lounge / coffee house site, Makhachkala. */
 function LandingMockup() {
   return (
     <Window path={DOMAINS.landing}>
       <div className="flex h-full flex-col">
-        <div className="flex h-8 shrink-0 items-center justify-between border-b border-line px-3">
-          <span className="font-display text-[0.5625rem] font-medium uppercase tracking-[0.3em] text-fg">
-            СЕВЕР
+        <div className="flex h-8 shrink-0 items-center justify-between gap-2 border-b border-line px-3">
+          <span className="font-display text-[0.5625rem] font-medium uppercase tracking-[0.22em] text-fg">
+            ШАХ LOUNGE
           </span>
           <span className="hidden items-center gap-3 font-mono text-[0.4375rem] uppercase tracking-[0.08em] text-faint md:flex">
-            <span>Квартиры</span>
-            <span>Двор</span>
-            <span>Ипотека</span>
-            <span>Ход стройки</span>
+            <span>Меню</span>
+            <span>Зоны</span>
+            <span>Бронь</span>
+            <span>Контакты</span>
           </span>
           <span className="rounded-full border border-line px-1.5 py-0.5 font-mono text-[0.4375rem] uppercase leading-none tracking-[0.04em] text-fg">
-            Бронь
+            18+
           </span>
         </div>
 
         <div className="grid min-h-0 flex-1 gap-3 p-3 md:grid-cols-[1.15fr_0.85fr]">
           <div className="flex flex-col justify-center">
             <span className="font-mono text-[0.4375rem] uppercase tracking-[0.14em] text-faint">
-              ЖК «Северный» · сдача 2027
+              Махачкала · Газопроводная 6Б
             </span>
-            <span className="mt-1.5 font-display text-[0.875rem] font-medium leading-[1.02] tracking-[-0.04em] text-fg md:text-[1.125rem]">
-              Двор, в котором
+            <span className="mt-1.5 font-display text-[0.875rem] font-medium leading-[1.02] tracking-[-0.04em] text-fg md:text-[1.25rem]">
+              Дым. Свет.
               <br />
-              хочется жить
+              Музыка.
             </span>
-            <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+            <p className="mt-1.5 max-w-[34ch] text-[0.4375rem] leading-[1.5] text-faint">
+              Кальянная и кофейня в центре Махачкалы. Зал, PS5 и бильярд — бронь на вечер.
+            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
               <span className="rounded-full bg-accent px-2 py-1 font-mono text-[0.4375rem] uppercase leading-none tracking-[0.04em] text-accent-ink">
-                Выбрать квартиру
+                Забронировать
               </span>
-              <span className="flex items-center gap-1 rounded-full border border-line px-2 py-1 font-mono text-[0.4375rem] uppercase leading-none tracking-[0.04em] text-muted">
-                <PlayGlyph /> 3D-тур по двору
+              <span className="rounded-full border border-line px-2 py-1 font-mono text-[0.4375rem] uppercase leading-none tracking-[0.04em] text-muted">
+                Смотреть меню
               </span>
-            </div>
-            <div className="mt-2.5 flex items-center gap-3 border-t border-line pt-2 font-mono text-[0.375rem] uppercase tracking-[0.04em] text-faint">
-              <span>12 корпусов</span>
-              <span className="size-[3px] rounded-full bg-line-strong" />
-              <span>4 га парка</span>
-              <span className="size-[3px] rounded-full bg-line-strong" />
-              <span>метро 8 мин</span>
             </div>
           </div>
 
           <div className="relative hidden overflow-hidden rounded-[6px] border border-line bg-bg/40 md:block">
             <span className="absolute left-2 top-2 font-mono text-[0.4375rem] uppercase tracking-[0.08em] text-faint">
-              Двор · 3D
+              Зал · 18+
             </span>
-            <BuildingGlyph className="absolute inset-0 m-auto w-[86%] text-line-strong" />
+            <HookahGlyph className="absolute inset-0 m-auto w-[70%] text-accent-dim drop-shadow-[0_0_12px_var(--accent)]" />
             <span className="absolute bottom-2 right-2 rounded-full border border-line bg-bg-deep/80 px-2 py-1 font-mono text-[0.4375rem] uppercase leading-none tracking-[0.04em] text-muted">
-              Смотреть
+              NEON
             </span>
           </div>
         </div>
 
         <div className="grid shrink-0 grid-cols-3 gap-1.5 border-t border-line px-3 py-2">
           {[
-            { type: "Студия", area: "24 м²", price: "7,9 млн ₽" },
-            { type: "1-комн", area: "38 м²", price: "11,2 млн ₽" },
-            { type: "2-комн", area: "54 м²", price: "15,6 млн ₽" },
-          ].map((plan) => (
+            { title: "Зал", meta: "6–10 гостей", price: "2 000 ₽" },
+            { title: "PS5", meta: "2 часа", price: "1 500 ₽" },
+            { title: "Бильярд", meta: "час", price: "1 000 ₽" },
+          ].map((zone) => (
             <div
-              key={plan.type}
+              key={zone.title}
               className="flex items-center justify-between gap-2 rounded-[5px] border border-line px-2 py-1.5"
             >
               <span className="min-w-0">
                 <span className="block truncate font-mono text-[0.4375rem] uppercase leading-none tracking-[0.04em] text-fg">
-                  {plan.type}
+                  {zone.title}
                 </span>
-                <span className="mt-0.5 block font-mono text-[0.375rem] leading-none text-faint">
-                  {plan.area}
+                <span className="mt-0.5 block truncate font-mono text-[0.375rem] leading-none text-faint">
+                  {zone.meta}
                 </span>
               </span>
               <span className="shrink-0 font-display text-[0.5rem] leading-none text-fg">
-                {plan.price}
+                {zone.price}
               </span>
             </div>
           ))}
@@ -410,11 +402,12 @@ function LandingMockup() {
   );
 }
 
+/** 3 · E13-WASH — terminal with tariffs for a robotic car wash. */
 function CommerceMockup() {
-  const products = [
-    { name: "Кеды Runner 02", price: "24 900 ₽", old: "31 900 ₽", ar: true },
-    { name: "Сумка Tote 04", price: "18 400 ₽" },
-    { name: "Лоферы City 01", price: "29 600 ₽" },
+  const tariffs: { name: string; price: string; time: string; highlight?: boolean }[] = [
+    { name: "Экспресс", price: "490 ₽", time: "3 мин" },
+    { name: "Стандарт", price: "790 ₽", time: "5 мин", highlight: true },
+    { name: "Премиум", price: "1 200 ₽", time: "8 мин" },
   ];
 
   return (
@@ -422,97 +415,111 @@ function CommerceMockup() {
       <div className="flex h-full flex-col">
         <div className="flex h-8 shrink-0 items-center justify-between gap-2 border-b border-line px-3">
           <span className="font-display text-[0.5625rem] font-medium uppercase tracking-[0.2em] text-fg">
-            STRAVINSKY
+            E13-WASH
           </span>
           <span className="hidden items-center gap-3 font-mono text-[0.4375rem] uppercase tracking-[0.08em] text-faint md:flex">
-            <span>Новинки</span>
-            <span>Обувь</span>
-            <span>Сумки</span>
-            <span className="text-accent">AR-примерка</span>
+            <span>Мойки</span>
+            <span className="text-accent">Тарифы</span>
           </span>
           <span className="flex items-center gap-1 rounded-full border border-line px-1.5 py-0.5 font-mono text-[0.4375rem] uppercase leading-none tracking-[0.04em] text-fg">
-            <span className="grid size-2.5 place-items-center rounded-full bg-accent font-mono text-[0.3125rem] leading-none text-accent-ink">
-              2
-            </span>
-            Корзина
+            <span className="size-1 rounded-full bg-accent animate-pulse-soft" />
+            24/7
           </span>
         </div>
 
         <div className="flex min-h-0 flex-1 gap-2 p-3">
           <div className="flex min-w-0 flex-1 flex-col">
             <div className="flex flex-wrap items-center gap-1">
-              {["Все", "Обувь", "Сумки", "Аксессуары"].map((filter, i) => (
+              {["Экспресс", "Стандарт", "Премиум"].map((filter, i) => (
                 <span
                   key={filter}
                   className={`rounded-full border px-1.5 py-0.5 font-mono text-[0.4375rem] uppercase leading-none tracking-[0.04em] ${
-                    i === 1
-                      ? "border-line-strong bg-glass text-fg"
-                      : "border-line text-faint"
+                    i === 1 ? "border-line-strong bg-glass text-fg" : "border-line text-faint"
                   }`}
                 >
                   {filter}
                 </span>
               ))}
               <span className="ml-auto font-mono text-[0.4375rem] leading-none text-faint">
-                4 000 SKU
+                Терминал · 4
               </span>
             </div>
 
             <div className="mt-2 grid flex-1 grid-cols-3 gap-1.5">
-              {products.map((product) => (
+              {tariffs.map((tariff) => (
                 <div
-                  key={product.name}
-                  className="flex flex-col overflow-hidden rounded-[5px] border border-line bg-bg/40"
+                  key={tariff.name}
+                  className={`relative flex flex-col overflow-hidden rounded-[5px] border p-1.5 ${
+                    tariff.highlight
+                      ? "border-accent/50 bg-accent/[0.06]"
+                      : "border-line bg-bg/40"
+                  }`}
                 >
-                  <div className="relative flex flex-1 items-center justify-center bg-linear-to-br from-glass to-transparent">
-                    <SneakerGlyph className="w-[74%] text-line-strong" />
-                    {product.ar ? (
-                      <span className="absolute left-1 top-1 rounded-full border border-accent/40 bg-bg-deep/80 px-1 py-0.5 font-mono text-[0.375rem] uppercase leading-none text-accent">
-                        AR
-                      </span>
-                    ) : null}
-                    {product.old ? (
-                      <span className="absolute right-1 top-1 rounded-full bg-accent px-1 py-0.5 font-mono text-[0.375rem] uppercase leading-none text-accent-ink">
-                        −22%
-                      </span>
-                    ) : null}
-                  </div>
-                  <div className="px-1.5 pb-1.5 pt-1">
-                    <span className="block truncate text-[0.4375rem] leading-none text-fg">
-                      {product.name}
+                  {tariff.highlight ? (
+                    <span className="absolute right-1 top-1 rounded-full bg-accent px-1 py-0.5 font-mono text-[0.3125rem] uppercase leading-none text-accent-ink">
+                      Хит
                     </span>
-                    <span className="mt-1 flex items-baseline gap-1">
-                      <span className="font-display text-[0.5rem] leading-none text-fg">
-                        {product.price}
-                      </span>
-                      {product.old ? (
-                        <span className="font-mono text-[0.375rem] leading-none text-faint line-through">
-                          {product.old}
-                        </span>
-                      ) : null}
-                    </span>
+                  ) : null}
+                  <div className="flex flex-1 items-center justify-center py-1">
+                    <CarWashGlyph
+                      className={`w-[76%] ${tariff.highlight ? "text-accent-dim" : "text-line-strong"}`}
+                    />
                   </div>
+                  <span className="block truncate font-mono text-[0.4375rem] uppercase leading-none tracking-[0.04em] text-fg">
+                    {tariff.name}
+                  </span>
+                  <span className="mt-1 flex items-baseline justify-between gap-1">
+                    <span
+                      className={`font-display text-[0.5rem] leading-none ${
+                        tariff.highlight ? "text-accent" : "text-fg"
+                      }`}
+                    >
+                      {tariff.price}
+                    </span>
+                    <span className="font-mono text-[0.3125rem] leading-none text-faint">
+                      {tariff.time}
+                    </span>
+                  </span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="hidden w-[33%] shrink-0 flex-col rounded-[6px] border border-line bg-bg/40 p-2 md:flex">
-            <div className="flex items-center justify-between">
+          <div className="hidden w-[32%] shrink-0 flex-col rounded-[6px] border border-line bg-bg/40 p-2 md:flex">
+            <div className="flex items-center justify-between gap-1">
               <span className="font-mono text-[0.4375rem] uppercase tracking-[0.08em] text-fg">
-                AR-примерка
+                Оплата
               </span>
-              <span className="size-1 rounded-full bg-accent animate-pulse-soft" />
-            </div>
-            <div className="relative mt-1.5 flex flex-1 items-center justify-center rounded-[4px] border border-dashed border-line-strong/60">
-              <SneakerGlyph className="w-[78%] text-accent-dim" />
-              <span className="absolute bottom-1 left-1 right-1 text-center font-mono text-[0.375rem] leading-none text-faint">
-                Наведите камеру на стопу
+              <span className="flex shrink-0 items-center gap-1">
+                <span className="size-1 rounded-full bg-accent animate-pulse-soft" />
+                <span className="font-mono text-[0.3125rem] uppercase leading-none tracking-[0.04em] text-faint">
+                  Терминал онлайн
+                </span>
               </span>
             </div>
-            <span className="mt-1.5 rounded-[4px] bg-accent py-1 text-center font-mono text-[0.4375rem] uppercase leading-none tracking-[0.04em] text-accent-ink">
-              Включить камеру
+
+            <div className="mt-2 flex items-baseline justify-between border-b border-line pb-1.5">
+              <span className="font-mono text-[0.375rem] uppercase leading-none tracking-[0.06em] text-faint">
+                К оплате
+              </span>
+              <span className="font-display text-[0.625rem] leading-none text-fg">790 ₽</span>
+            </div>
+
+            <span className="mt-2 block rounded-[4px] bg-accent py-1 text-center font-mono text-[0.4375rem] uppercase leading-none tracking-[0.04em] text-accent-ink">
+              Оплатить картой
             </span>
+
+            <div className="mt-auto flex items-center justify-between border-t border-line pt-1.5">
+              <span className="font-mono text-[0.375rem] leading-none text-faint">QR / СБП</span>
+              <span className="grid size-4 place-items-center rounded-[2px] border border-line-strong">
+                <span className="grid grid-cols-2 gap-[1px]">
+                  <span className="size-[2px] bg-fg" />
+                  <span className="size-[2px] bg-fg" />
+                  <span className="size-[2px] bg-fg" />
+                  <span className="size-[2px] bg-fg" />
+                </span>
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -520,97 +527,234 @@ function CommerceMockup() {
   );
 }
 
+/** 4 · E13-CHARGE — payment screen of the EV charging app (ЮKassa). */
+function MobileMockup() {
+  return (
+    <div className="relative flex h-full w-full items-center justify-center gap-4">
+      <span aria-hidden className="pointer-events-none absolute inset-0 dot-field opacity-[0.1]" />
+
+      <PhoneFrame className="-rotate-[1.5deg]">
+        <div className="flex flex-1 flex-col p-1.5">
+          <div className="flex items-center justify-between">
+            <span className="font-display text-[0.4375rem] uppercase leading-none tracking-[0.06em] text-fg">
+              E13-CHARGE
+            </span>
+            <span className="size-1 rounded-full bg-accent animate-pulse-soft" />
+          </div>
+
+          <span className="mt-2 font-mono text-[0.375rem] uppercase leading-none tracking-[0.06em] text-faint">
+            Баланс
+          </span>
+          <span className="mt-0.5 font-display text-[0.5625rem] leading-none text-fg">1 240 ₽</span>
+
+          <span className="mt-1 flex h-4 items-center justify-center rounded-[4px] bg-accent font-mono text-[0.375rem] uppercase leading-none tracking-[0.04em] text-accent-ink">
+            Пополнить баланс
+          </span>
+
+          <div className="mt-1.5 rounded-[4px] border border-line p-1.5">
+            <div className="flex items-center justify-between gap-1">
+              <span className="font-mono text-[0.375rem] leading-none text-fg">ЭЗС №12</span>
+              <span className="font-mono text-[0.3125rem] leading-none text-accent">Свободна</span>
+            </div>
+            <span className="mt-1 block font-mono text-[0.3125rem] uppercase leading-none tracking-[0.04em] text-faint">
+              150 кВт · CCS2
+            </span>
+          </div>
+
+          <div className="mt-auto flex items-center justify-between border-t border-line pt-1">
+            <span className="font-mono text-[0.3125rem] leading-none text-faint">•• 4242</span>
+            <span className="font-mono text-[0.3125rem] uppercase leading-none tracking-[0.04em] text-accent">
+              ЮKassa
+            </span>
+          </div>
+
+          <div className="mt-1 flex items-center justify-between border-t border-line pt-1">
+            {["Зарядки", "Оплата", "Профиль"].map((tab, i) => (
+              <span
+                key={tab}
+                className={`font-mono text-[0.3125rem] uppercase leading-none tracking-[0.03em] ${
+                  i === 1 ? "text-accent" : "text-faint"
+                }`}
+              >
+                {tab}
+              </span>
+            ))}
+          </div>
+        </div>
+      </PhoneFrame>
+
+      <PhoneFrame className="hidden rotate-[1.5deg] sm:flex">
+        <div className="flex flex-1 flex-col p-1.5">
+          <div className="flex items-center justify-between">
+            <span className="font-display text-[0.4375rem] leading-none text-fg">ЭЗС №12</span>
+            <span className="rounded-full border border-line px-1 py-0.5 font-mono text-[0.3125rem] leading-none text-faint">
+              CCS2
+            </span>
+          </div>
+          <span className="mt-2 font-mono text-[0.375rem] uppercase leading-none tracking-[0.06em] text-faint">
+            Мощность
+          </span>
+          <span className="mt-0.5 font-display text-[0.5rem] leading-none text-fg">150 кВт</span>
+          <span className="mt-1 font-mono text-[0.3125rem] leading-none text-accent">Свободна</span>
+
+          <div className="mt-2 flex flex-col gap-1">
+            {[
+              ["Коннектор", "CCS2"],
+              ["Сеть", "E13"],
+            ].map(([label, value]) => (
+              <span
+                key={label}
+                className="flex items-center justify-between border-b border-line pb-1 last:border-b-0 last:pb-0"
+              >
+                <span className="font-mono text-[0.3125rem] leading-none text-faint">{label}</span>
+                <span className="font-mono text-[0.3125rem] leading-none text-fg">{value}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      </PhoneFrame>
+
+      <div className="absolute bottom-[13%] right-[6%] hidden items-center gap-1 rounded-full border border-line bg-bg-deep/90 px-2 py-1 font-mono text-[0.375rem] uppercase leading-none tracking-[0.06em] text-muted backdrop-blur-sm md:flex">
+        <LockIcon />
+        ЮKassa · оплата
+      </div>
+    </div>
+  );
+}
+
+/** 5 · E13-MONITORING / EVMap — charging-station registry and map. */
 function ConfiguratorMockup() {
+  const stations = [
+    { name: "ЭЗС №12", status: "работает", on: true },
+    { name: "ЭЗС №4", status: "ТО", on: false },
+    { name: "ЭЗС №7", status: "offline", on: false },
+  ];
+
   return (
     <Window path={DOMAINS.configurator}>
       <div className="flex h-full flex-col">
         <div className="flex h-8 shrink-0 items-center gap-2 border-b border-line px-3">
-          <span className="font-display text-[0.5625rem] font-medium uppercase tracking-[0.26em] text-fg">
-            MOLOT
+          <span className="font-display text-[0.5625rem] font-medium uppercase tracking-[0.24em] text-fg">
+            E13 MONITORING
           </span>
           <span className="hidden font-mono text-[0.4375rem] uppercase tracking-[0.06em] text-faint md:inline">
-            Каталог · 1 800 позиций
+            EVMap · реестр ЭЗС
           </span>
-          <span className="ml-auto flex h-[18px] w-[34%] items-center gap-1 truncate rounded-full border border-line bg-bg px-2 font-mono text-[0.4375rem] text-faint">
-            <SearchIcon />
-            <span className="truncate">Стол оператора</span>
-          </span>
-          <span className="shrink-0 rounded-full border border-line px-1.5 py-0.5 font-mono text-[0.4375rem] uppercase leading-none tracking-[0.04em] text-fg">
-            Заявка · 1
+          <span className="ml-auto shrink-0 rounded-full border border-line px-1.5 py-0.5 font-mono text-[0.4375rem] uppercase leading-none tracking-[0.04em] text-fg">
+            OCPP 1.6J
           </span>
         </div>
 
-        <div className="grid min-h-0 flex-1 gap-2 p-3 md:grid-cols-[0.9fr_1.05fr_0.85fr]">
-          <div className="relative hidden overflow-hidden rounded-[6px] border border-line bg-bg/40 md:block">
-            <span className="absolute left-2 top-2 font-mono text-[0.4375rem] uppercase tracking-[0.08em] text-faint">
-              Предпросмотр
-            </span>
-            <DeskGlyph className="absolute inset-0 m-auto w-[82%] text-line-strong" />
-            <span className="absolute bottom-1.5 left-2 font-mono text-[0.375rem] leading-none text-faint">
-              1200 × 700 × 750
-            </span>
+        <div className="grid min-h-0 flex-1 gap-2 p-3 md:grid-cols-[1.2fr_0.9fr]">
+          <div className="flex min-w-0 flex-col gap-1.5">
+            <div className="relative min-h-0 flex-1 overflow-hidden rounded-[6px] border border-line bg-bg/40">
+              <span className="absolute left-2 top-2 z-10 font-mono text-[0.4375rem] uppercase tracking-[0.08em] text-faint">
+                Карта · ЭЗС
+              </span>
+              <span aria-hidden className="grid-field absolute inset-0 opacity-40" />
+              <svg
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+                aria-hidden
+                className="absolute inset-0 h-full w-full"
+              >
+                <path
+                  d="M18 62 40 44 64 54 82 32"
+                  fill="none"
+                  strokeWidth="0.5"
+                  strokeDasharray="2 2"
+                  className="stroke-line-strong"
+                />
+              </svg>
+              <span
+                aria-hidden
+                className="absolute left-[16%] top-[44%] flex flex-col items-center gap-0.5"
+              >
+                <span className="rounded-[3px] border border-accent/40 bg-bg-deep px-1 py-0.5 font-mono text-[0.3125rem] uppercase leading-none tracking-[0.04em] text-accent">
+                  №12
+                </span>
+                <span className="size-1.5 rounded-full border border-accent bg-accent/40" />
+              </span>
+              <span
+                aria-hidden
+                className="absolute left-[38%] top-[36%] size-1 rounded-full border border-line-strong bg-bg-elev"
+              />
+              <span
+                aria-hidden
+                className="absolute left-[62%] top-[50%] size-1 rounded-full border border-line-strong bg-bg-elev"
+              />
+              <span
+                aria-hidden
+                className="absolute left-[80%] top-[28%] size-1 rounded-full border border-line-strong bg-bg-elev"
+              />
+            </div>
+
+            <div className="flex shrink-0 flex-col gap-1">
+              {stations.map((station) => (
+                <span
+                  key={station.name}
+                  className="flex items-center justify-between gap-2 border-b border-line pb-1 last:border-b-0 last:pb-0"
+                >
+                  <span className="flex min-w-0 items-center gap-1.5">
+                    <span
+                      className={`size-1 shrink-0 rounded-full ${
+                        station.on ? "bg-accent" : "bg-line-strong"
+                      }`}
+                    />
+                    <span className="truncate font-mono text-[0.375rem] leading-none text-fg">
+                      {station.name}
+                    </span>
+                  </span>
+                  <span
+                    className={`shrink-0 font-mono text-[0.3125rem] uppercase leading-none tracking-[0.04em] ${
+                      station.on ? "text-accent" : "text-faint"
+                    }`}
+                  >
+                    {station.status}
+                  </span>
+                </span>
+              ))}
+            </div>
           </div>
 
-          <div className="flex min-w-0 flex-col gap-2">
-            <div>
-              <span className="font-mono text-[0.4375rem] uppercase tracking-[0.1em] text-faint">
-                Материал
-              </span>
-              <div className="mt-1 flex flex-wrap gap-1">
-                {["ЛДСП", "МДФ", "Металл"].map((material, i) => (
-                  <span
-                    key={material}
-                    className={`rounded-[3px] border px-1.5 py-0.5 font-mono text-[0.4375rem] leading-none ${
-                      i === 0
-                        ? "border-accent/40 bg-accent/10 text-accent"
-                        : "border-line text-faint"
-                    }`}
-                  >
-                    {material}
-                  </span>
-                ))}
-              </div>
-            </div>
+          <div className="hidden flex-col rounded-[6px] border border-line bg-bg/40 p-2 md:flex">
+            <span className="font-mono text-[0.4375rem] uppercase tracking-[0.1em] text-faint">
+              Паспорт станции
+            </span>
+            <span className="mt-1 block font-display text-[0.5625rem] leading-none text-fg">
+              ЭЗС №12
+            </span>
 
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-[0.4375rem] uppercase tracking-[0.1em] text-faint">
-                  Ширина
-                </span>
-                <span className="font-mono text-[0.4375rem] leading-none text-fg">1200 мм</span>
-              </div>
-              <div className="relative mt-1.5 h-[3px] rounded-full bg-line">
-                <span className="absolute inset-y-0 left-0 w-[64%] rounded-full bg-accent" />
-                <span className="absolute -top-[3px] left-[64%] size-[9px] -translate-x-1/2 rounded-full border border-accent bg-bg-deep" />
-              </div>
-            </div>
-
-            <div className="hidden sm:block">
-              <span className="font-mono text-[0.4375rem] uppercase tracking-[0.1em] text-faint">
-                Цвет
-              </span>
-              <div className="mt-1 flex items-center gap-1">
-                <span className="size-3 rounded-full border border-line-strong bg-fg ring-2 ring-accent" />
-                <span className="size-3 rounded-full border border-line-strong bg-bg-elev" />
-                <span className="size-3 rounded-full border border-line-strong bg-accent-dim" />
-                <span className="size-3 rounded-full border border-line-strong bg-line-strong" />
-                <span className="ml-1 font-mono text-[0.375rem] leading-none text-faint">графит</span>
-              </div>
-            </div>
-
-            <div className="mt-auto hidden flex-col gap-1 sm:flex">
+            <div className="mt-1.5 flex flex-col gap-1">
               {[
-                { label: "Тумба 2 шт", on: true },
-                { label: "Подсветка", on: true },
-                { label: "Колёса", on: false },
-              ].map((option) => (
-                <span key={option.label} className="flex items-center gap-1.5">
+                ["Мощность", "150 кВт"],
+                ["Разъёмы", "CCS2 / GB-T"],
+                ["Протокол", "OCPP 1.6J"],
+                ["Документы", "5/6"],
+              ].map(([label, value]) => (
+                <span
+                  key={label}
+                  className="flex items-center justify-between gap-1 border-b border-line pb-1 last:border-b-0 last:pb-0"
+                >
+                  <span className="font-mono text-[0.3125rem] leading-none text-faint">{label}</span>
+                  <span className="font-mono text-[0.3125rem] leading-none text-fg">{value}</span>
+                </span>
+              ))}
+            </div>
+
+            <div className="mt-auto flex flex-col gap-1 border-t border-line pt-1.5">
+              {[
+                { label: "Паспорт", on: true },
+                { label: "ТО", on: true },
+                { label: "Гарантия", on: false },
+              ].map((item) => (
+                <span key={item.label} className="flex items-center gap-1.5">
                   <span
                     className={`grid size-2.5 place-items-center rounded-[2px] border ${
-                      option.on ? "border-accent bg-accent" : "border-line-strong"
+                      item.on ? "border-accent bg-accent" : "border-line-strong"
                     }`}
                   >
-                    {option.on ? (
+                    {item.on ? (
                       <svg
                         viewBox="0 0 24 24"
                         className="size-1.5 text-accent-ink"
@@ -623,169 +767,16 @@ function ConfiguratorMockup() {
                       </svg>
                     ) : null}
                   </span>
-                  <span className="font-mono text-[0.375rem] leading-none text-faint">
-                    {option.label}
+                  <span className="font-mono text-[0.3125rem] leading-none text-faint">
+                    {item.label}
                   </span>
                 </span>
               ))}
-            </div>
-
-            <div className="mt-1 flex items-baseline justify-between border-t border-line pt-1.5 sm:hidden">
-              <span className="font-mono text-[0.375rem] uppercase leading-none tracking-[0.06em] text-faint">
-                Итого
-              </span>
-              <span className="font-display text-[0.5625rem] leading-none text-fg">
-                142 400 ₽
-              </span>
-            </div>
-          </div>
-
-          <div className="hidden flex-col rounded-[6px] border border-line bg-bg/40 p-2 md:flex">
-            <span className="font-mono text-[0.4375rem] uppercase tracking-[0.1em] text-faint">
-              Комплектация
-            </span>
-            <div className="mt-1.5 flex flex-col gap-1">
-              {[
-                ["База", "89 000 ₽"],
-                ["Тумбы 2 шт", "24 000 ₽"],
-                ["Подсветка", "12 000 ₽"],
-              ].map(([label, price]) => (
-                <div
-                  key={label}
-                  className="flex items-baseline justify-between gap-2 border-b border-line pb-1 last:border-b-0 last:pb-0"
-                >
-                  <span className="font-mono text-[0.375rem] leading-none text-faint">{label}</span>
-                  <span className="font-mono text-[0.375rem] leading-none text-fg">{price}</span>
-                </div>
-              ))}
-            </div>
-            <div className="mt-auto border-t border-line pt-1.5">
-              <div className="flex items-baseline justify-between">
-                <span className="font-mono text-[0.4375rem] uppercase leading-none tracking-[0.06em] text-faint">
-                  Итого
-                </span>
-                <span className="font-display text-[0.625rem] leading-none text-fg">
-                  142 400 ₽
-                </span>
-              </div>
-              <span className="mt-1.5 block rounded-[4px] bg-accent py-1 text-center font-mono text-[0.4375rem] uppercase leading-none tracking-[0.04em] text-accent-ink">
-                В заявку
-              </span>
             </div>
           </div>
         </div>
       </div>
     </Window>
-  );
-}
-
-function PhoneFrame({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return (
-    <div
-      className={`relative flex h-[88%] aspect-[9/18] flex-col overflow-hidden rounded-[16px] border border-line-strong/70 bg-bg-elev p-[3px] shadow-[var(--shadow-lift)] ${className}`}
-    >
-      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-[13px] bg-bg-deep">
-        <span aria-hidden className="mx-auto mt-1 h-[3px] w-8 shrink-0 rounded-full bg-line-strong" />
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function MobileMockup() {
-  return (
-    <div className="relative flex h-full w-full items-center justify-center gap-4">
-      <span aria-hidden className="pointer-events-none absolute inset-0 dot-field opacity-[0.1]" />
-
-      <PhoneFrame className="-rotate-[1.5deg]">
-        <div className="flex flex-1 flex-col p-1.5">
-          <div className="flex items-center justify-between">
-            <span className="font-display text-[0.4375rem] leading-none text-fg">Отчёт</span>
-            <span className="font-mono text-[0.375rem] leading-none text-faint">Окт</span>
-          </div>
-          <span className="mt-2 font-mono text-[0.375rem] uppercase leading-none tracking-[0.06em] text-faint">
-            Выручка
-          </span>
-          <span className="mt-0.5 font-display text-[0.5rem] leading-none text-fg">4,18 млн ₽</span>
-          <span className="mt-0.5 font-mono text-[0.375rem] leading-none text-accent">+12,4%</span>
-          <Bars
-            heights={["h-[40%]", "h-[62%]", "h-[48%]", "h-[84%]", "h-[58%]"]}
-            accentIndex={3}
-            className="mt-1.5 h-8"
-          />
-          <div className="mt-1.5 flex flex-col gap-1">
-            {[
-              ["Москва", "2,1 млн"],
-              ["СПб", "0,9 млн"],
-              ["Казань", "0,6 млн"],
-            ].map(([city, value]) => (
-              <span
-                key={city}
-                className="flex items-center justify-between border-b border-line pb-1 last:border-b-0 last:pb-0"
-              >
-                <span className="font-mono text-[0.375rem] leading-none text-faint">{city}</span>
-                <span className="font-mono text-[0.375rem] leading-none text-fg">{value}</span>
-              </span>
-            ))}
-          </div>
-        </div>
-      </PhoneFrame>
-
-      <PhoneFrame className="hidden rotate-[1.5deg] sm:flex">
-        <div className="flex flex-1 flex-col p-1.5">
-          <div className="flex items-center justify-between">
-            <span className="font-display text-[0.4375rem] leading-none text-fg">Филиалы</span>
-            <span className="rounded-full border border-line px-1 py-0.5 font-mono text-[0.3125rem] leading-none text-faint">
-              60
-            </span>
-          </div>
-          <span className="mt-2 flex h-4 items-center gap-1 rounded-full border border-line bg-bg px-1.5 font-mono text-[0.3125rem] text-faint">
-            <SearchIcon />
-            Поиск
-          </span>
-          <div className="mt-2 flex flex-col gap-1.5">
-            {[
-              ["Москва", "18", "+4"],
-              ["Санкт-Петербург", "11", "+2"],
-              ["Казань", "7", "−1"],
-              ["Новосибирск", "5", "+1"],
-            ].map(([city, count, delta]) => (
-              <span key={city} className="flex items-center justify-between gap-1">
-                <span className="min-w-0 truncate font-mono text-[0.375rem] leading-none text-faint">
-                  {city}
-                </span>
-                <span className="flex shrink-0 items-baseline gap-1">
-                  <span className="font-display text-[0.375rem] leading-none text-fg">{count}</span>
-                  <span className="font-mono text-[0.3125rem] leading-none text-accent">{delta}</span>
-                </span>
-              </span>
-            ))}
-          </div>
-          <div className="mt-auto flex items-center justify-between border-t border-line pt-1">
-            {["Обзор", "Отчёт", "Роли"].map((tab, i) => (
-              <span
-                key={tab}
-                className={`font-mono text-[0.3125rem] uppercase leading-none tracking-[0.04em] ${
-                  i === 1 ? "text-accent" : "text-faint"
-                }`}
-              >
-                {tab}
-              </span>
-            ))}
-          </div>
-        </div>
-      </PhoneFrame>
-
-      <div className="absolute left-[7%] top-[14%] hidden rounded-[6px] border border-line bg-bg-deep/90 p-2 backdrop-blur-sm md:block">
-        <span className="block font-display text-[0.6875rem] leading-none text-accent">−3 дня</span>
-        <span className="mt-1 block font-mono text-[0.375rem] uppercase leading-none tracking-[0.06em] text-faint">
-          к отчётности
-        </span>
-      </div>
-      <div className="absolute bottom-[13%] right-[6%] hidden rounded-full border border-line bg-bg-deep/90 px-2 py-1 font-mono text-[0.375rem] uppercase leading-none tracking-[0.06em] text-muted backdrop-blur-sm md:block">
-        API · 12 отчётов
-      </div>
-    </div>
   );
 }
 

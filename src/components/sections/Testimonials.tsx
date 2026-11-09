@@ -3,22 +3,11 @@ import { site } from "@/content/site";
 import Counter from "@/components/ui/Counter";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/Reveal";
 import SectionHeading from "@/components/ui/SectionHeading";
-import { Star } from "@/components/ui/icons";
 
 const { testimonials } = site;
 /* Reuse the numbers the studio already publishes instead of inventing proof. */
-const ratingStat = site.hero.stats[2];
 const projectsStat = site.hero.stats[0];
-
-function Stars({ label, size = "size-3.5" }: { label: string; size?: string }) {
-  return (
-    <span role="img" aria-label={label} className="flex items-center gap-0.5 text-accent">
-      {Array.from({ length: 5 }, (_, index) => (
-        <Star key={index} className={size} />
-      ))}
-    </span>
-  );
-}
+const industriesStat = site.hero.stats[1];
 
 function Monogram({
   initials,
@@ -40,25 +29,16 @@ function Monogram({
 }
 
 function Score() {
-  const decimals = ratingStat.decimals ?? 0;
-  const rating = ratingStat.value.toLocaleString("ru-RU", {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
-
   return (
     <div className="flex flex-col gap-2.5 lg:items-end lg:text-right">
-      <div className="flex items-center gap-3">
-        <Stars label={`Средняя оценка ${rating} из 5`} />
-        <span className="flex items-baseline gap-1 font-display text-[1rem] leading-none tracking-[-0.02em] tabular-nums text-fg">
-          <Counter value={ratingStat.value} decimals={decimals} />
-          <span className="font-mono text-[0.6875rem] tracking-[0.06em] text-muted">
-            {ratingStat.suffix}
-          </span>
+      <p className="flex items-baseline gap-1 font-display text-[1rem] leading-none tracking-[-0.02em] tabular-nums text-fg lg:justify-end">
+        <Counter value={projectsStat.value} />
+        <span className="font-mono text-[0.6875rem] tracking-[0.06em] text-muted">
+          проектов
         </span>
-      </div>
+      </p>
       <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-muted">
-        <Counter value={projectsStat.value} /> {projectsStat.label}
+        <Counter value={industriesStat.value} /> отрасли · 2025–2026
       </p>
     </div>
   );
@@ -88,7 +68,10 @@ export default function Testimonials() {
           <figure className="grid gap-8 rounded-lg border border-line bg-glass p-6 transition-colors duration-200 hover:border-line-strong sm:p-8 lg:grid-cols-12 lg:items-center lg:gap-12 lg:p-10">
             <div className="flex flex-col gap-6 lg:col-span-8">
               <div className="flex items-start justify-between gap-6">
-                <Stars label="Оценка 5 из 5" />
+                <span className="flex items-center gap-3 font-mono text-[0.6875rem] uppercase leading-none tracking-[0.12em] text-muted">
+                  <span className="size-1.5 rounded-full bg-accent" />
+                  {lead.company}
+                </span>
                 <span
                   aria-hidden
                   className="translate-y-2 font-display text-[2.75rem] leading-[0.6] text-accent/70"
@@ -120,7 +103,10 @@ export default function Testimonials() {
           <StaggerItem key={item.name} className="lg:col-span-6">
             <figure className="flex h-full flex-col justify-between gap-6 rounded-md border border-line bg-bg-elev/60 p-6 transition-colors duration-200 hover:border-line-strong">
               <div className="flex flex-col gap-4">
-                <Stars label="Оценка 5 из 5" size="size-3" />
+                <span className="flex items-center gap-3 font-mono text-[0.625rem] uppercase leading-none tracking-[0.12em] text-faint">
+                  <span className="size-1 rounded-full bg-accent" />
+                  {item.company}
+                </span>
                 <blockquote className="text-pretty text-[0.9375rem] leading-[1.65] text-muted">
                   {item.quote}
                 </blockquote>

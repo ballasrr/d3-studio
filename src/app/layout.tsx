@@ -11,7 +11,7 @@ import GrainOverlay from "@/components/chrome/GrainOverlay";
 import ScrollProgress from "@/components/chrome/ScrollProgress";
 
 const description =
-  "D3 — студия разработки сайтов и цифровых продуктов. Дизайн, 3D-графика и продакшн-код: от идеи до запуска за 6–10 недель.";
+  "D3 — студия разработки сайтов и сервисов: сайты, веб-приложения, Telegram-боты, платёжные интеграции и 3D. Махачкала, работаю по РФ и миру.";
 
 /** Static export lives under /d3 on a shared nginx, so public URLs must match. */
 const isExport = process.env.STATIC_EXPORT === "1";

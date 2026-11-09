@@ -107,7 +107,7 @@ export default function WorkPinned() {
             ref={trackRef}
             tabIndex={0}
             role="region"
-            aria-label="Кейсы — горизонтальная галерея"
+            aria-label="Проекты — горизонтальная галерея"
             className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-[var(--gutter)] pb-2 no-scrollbar [scroll-padding-inline:var(--gutter)] lg:min-h-0 lg:flex-1 lg:items-stretch lg:pb-0"
           >
             {work.items.map((item, i) => (
@@ -162,7 +162,7 @@ export default function WorkPinned() {
                       ))}
                     </ul>
                     <span className="type-label hidden shrink-0 sm:inline">
-                      Кейс {pad(i + 1)}
+                      Проект {pad(i + 1)}
                     </span>
                   </div>
                 </div>
