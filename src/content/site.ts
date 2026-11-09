@@ -243,7 +243,6 @@ export const site = {
         resultLabel: "ручных пересылок отзывов",
         visual: "dashboard",
         tone: "lime",
-        url: "https://review.asko-plus.ru/",
       },
       {
         id: "shah-lounge",
