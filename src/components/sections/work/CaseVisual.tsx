@@ -336,10 +336,24 @@ function usePhotoLightbox(length: number) {
 function LandingMockup() {
   const { active, setActive, closeRef } = usePhotoLightbox(SHAH_GALLERY.length);
 
+  const frameRef = useRef<HTMLDivElement>(null);
+  const [fillFrame, setFillFrame] = useState(false);
+
+  useEffect(() => {
+    const el = frameRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(() => {
+      const rect = el.getBoundingClientRect();
+      setFillFrame(rect.width / rect.height <= 1.9);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <>
       <Window path={DOMAINS.landing}>
-        <div className="relative h-full w-full overflow-hidden bg-bg-deep">
+        <div ref={frameRef} className="relative h-full w-full overflow-hidden bg-bg-deep">
           <button
             type="button"
             onClick={() => setActive(0)}
@@ -359,7 +373,11 @@ function LandingMockup() {
               alt="Сайт ШАХ LOUNGE"
               fill
               sizes="(max-width: 1024px) 92vw, 860px"
-              className="object-contain object-center transition-transform duration-500 group-hover/photo:scale-[1.02]"
+              className={
+                fillFrame
+                  ? "object-cover object-top transition-transform duration-500 group-hover/photo:scale-[1.02]"
+                  : "object-contain object-center transition-transform duration-500 group-hover/photo:scale-[1.02]"
+              }
             />
             <span className="pointer-events-none absolute right-2 top-2 rounded-full border border-line-strong bg-bg-deep/85 px-2 py-1 font-mono text-[0.4375rem] uppercase tracking-[0.08em] text-fg opacity-0 backdrop-blur transition-opacity group-hover/photo:opacity-100">
               {SHAH_GALLERY.length} фото
