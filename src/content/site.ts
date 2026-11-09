@@ -33,8 +33,8 @@ export type CaseStudy = {
   industry: string;
   year: string;
   services: string[];
-  result: string;
-  resultLabel: string;
+  result?: string;
+  resultLabel?: string;
   visual: "dashboard" | "landing" | "commerce" | "mobile" | "configurator";
   tone: "lime" | "neutral" | "warm" | "ice";
   /** Публичный адрес проекта, если это сайт/сервис с открытой страницей. */
@@ -239,8 +239,6 @@ export const site = {
         industry: "АЗС и ЭЗС",
         year: "2026",
         services: ["FastAPI", "Telegram Bot", "PostgreSQL", "Админ-панель"],
-        result: "0",
-        resultLabel: "ручных пересылок отзывов",
         visual: "dashboard",
         tone: "lime",
       },
@@ -253,8 +251,6 @@ export const site = {
         industry: "HoReCa",
         year: "2026",
         services: ["Nuxt 4", "FastAPI", "Дизайн", "SEO"],
-        result: "0%",
-        resultLabel: "комиссий агрегаторам за брони",
         visual: "landing",
         tone: "neutral",
         url: "https://shah-hookah-bar.ru/",

@@ -141,14 +141,16 @@ export default function WorkPinned() {
                         </p>
                       </div>
 
-                      <div className="shrink-0 sm:text-right">
-                        <span className="block font-display text-[1.5rem] font-medium leading-none tracking-[-0.04em] tabular-nums text-accent md:text-[2.125rem]">
-                          {item.result}
-                        </span>
-                        <span className="mt-2 block max-w-[19ch] text-[0.6875rem] leading-[1.4] text-faint sm:ml-auto">
-                          {item.resultLabel}
-                        </span>
-                      </div>
+                      {item.result && item.resultLabel ? (
+                        <div className="shrink-0 sm:text-right">
+                          <span className="block font-display text-[1.5rem] font-medium leading-none tracking-[-0.04em] tabular-nums text-accent md:text-[2.125rem]">
+                            {item.result}
+                          </span>
+                          <span className="mt-2 block max-w-[19ch] text-[0.6875rem] leading-[1.4] text-faint sm:ml-auto">
+                            {item.resultLabel}
+                          </span>
+                        </div>
+                      ) : null}
                     </div>
 
                     <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
