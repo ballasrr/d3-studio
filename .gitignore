@@ -45,3 +45,6 @@ next-env.d.ts
 deploy/staging/
 deploy/d3-site.tar.gz
 deploy/smoke-*.png
+
+# transient deploy logs
+deploy/*-log.txt
