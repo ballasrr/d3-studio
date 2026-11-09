@@ -7,7 +7,7 @@ import { site } from "@/content/site";
 import { EASE } from "@/lib/motion";
 
 import MagneticButton from "@/components/ui/MagneticButton";
-import { ArrowDown, ArrowRight, Check } from "@/components/ui/icons";
+import { ArrowDown, ArrowRight, ArrowUpRight, Check } from "@/components/ui/icons";
 
 import {
   isValidField,
@@ -74,6 +74,7 @@ export default function LeadForm() {
   const [errors, setErrors] = useState<LeadErrors>({});
   const [status, setStatus] = useState<FormStatus>("idle");
   const [resetCount, setResetCount] = useState(0);
+  const [telegramLink, setTelegramLink] = useState("");
 
   const timers = useRef<number[]>([]);
   const fieldRefs = useRef<
@@ -136,11 +137,24 @@ export default function LeadForm() {
     }
 
     setErrors({});
-    setStatus("sending");
 
+    const lines = [
+      "Заявка с сайта D3",
+      `Имя: ${values.name}`,
+      values.company ? `Компания: ${values.company}` : "",
+      `Контакт: ${values.contact}`,
+      `Бюджет: ${values.budget}`,
+      `Задача: ${values.message}`,
+    ].filter(Boolean);
+
+    const link = `${site.contacts.telegramUrl}?text=${encodeURIComponent(lines.join("\n"))}`;
+    setTelegramLink(link);
+    setStatus("success");
+    window.open(link, "_blank", "noopener,noreferrer");
+
+    // Keep a copy on the server so the lead is not lost if Telegram is closed.
     try {
-      const endpoint = new URL("api/lead", window.location.href);
-      const response = await fetch(endpoint, {
+      void fetch(new URL("api/lead", window.location.href), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -148,10 +162,8 @@ export default function LeadForm() {
           page: window.location.pathname + window.location.search,
         }),
       });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      setStatus("success");
     } catch {
-      setStatus("error");
+      // Telegram is the primary channel; ignore storage errors.
     }
   };
 
@@ -161,6 +173,7 @@ export default function LeadForm() {
     setValues(emptyValues());
     setErrors({});
     setStatus("idle");
+    setTelegramLink("");
     setResetCount((count) => count + 1);
   };
 
@@ -186,6 +199,17 @@ export default function LeadForm() {
             {form.successText}
           </p>
         </div>
+        {telegramLink ? (
+          <a
+            href={telegramLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-3 font-mono text-[0.75rem] uppercase tracking-[0.08em] text-accent-ink transition-opacity hover:opacity-90"
+          >
+            {form.successTelegram}
+            <ArrowUpRight aria-hidden className="size-4" />
+          </a>
+        ) : null}
         <MagneticButton variant="outline" size="md" onClick={reset}>
           {form.successReset}
         </MagneticButton>
