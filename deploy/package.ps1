@@ -35,7 +35,8 @@ try {
 
   $size = [math]::Round((Get-Item $archive).Length / 1MB, 2)
   Write-Host "==> ready: $archive ($size MB)"
-  Write-Host "==> deploy: scp `"$archive`" root@<server>:/tmp/ ; ssh root@<server> 'bash -s' < deploy/deploy-d3.sh"
+  Write-Host "==> git deploy (preferred): ssh root@<server> 'bash /var/www/d3-site/deploy/server-deploy.sh'"
+  Write-Host "==> archive deploy: scp d3-site.tar.gz deploy-d3.sh nginx-d3.sh root@<server>:/tmp/ ; ssh root@<server> 'bash /tmp/deploy-d3.sh shah-hookah-bar.ru /tmp/d3-site.tar.gz'"
 }
 finally {
   Pop-Location

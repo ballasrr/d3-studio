@@ -195,7 +195,21 @@ WebGL и только потом подгружает `HeroScene` через `dy
 
 ## 9. Деплой
 
-Сайт статически рендерится (App Router, без внешних API), подойдёт любой Node-хостинг:
+**Боевой вариант — git на сервере** (рядом с сайтом Шаха, без Node-процесса):
+сервер клонирует репозиторий, собирает статику с `basePath=/d3` и публикует в nginx.
+
+```powershell
+# разово: клонировать репозиторий на сервер и задеплоить
+ssh root@193.188.22.186 "git clone https://github.com/ballasrr/d3-studio.git /var/www/d3-site && bash /var/www/d3-site/deploy/server-deploy.sh shah-hookah-bar.ru"
+
+# обновление после git push
+ssh root@193.188.22.186 "bash /var/www/d3-site/deploy/server-deploy.sh"
+```
+
+Живой адрес: https://shah-hookah-bar.ru/d3/. Подробности, резервный деплой из архива,
+откат и подводные камни с nginx Шаха — в [`deploy/README.md`](deploy/README.md).
+
+Локально/на обычном хостинге:
 
 ```bash
 npm run build
