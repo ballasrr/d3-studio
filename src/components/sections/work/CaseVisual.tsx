@@ -7,11 +7,11 @@ import { createPortal } from "react-dom";
 import type { CaseStudy } from "@/content/site";
 import { ArrowRight, ArrowUpRight, Close } from "@/components/ui/icons";
 
+import askoShot from "@/assets/cases/asko-review.jpg";
 import shahAtmosphere from "@/assets/cases/shah-atmosphere.jpg";
 import shahBooking from "@/assets/cases/shah-booking.jpg";
-import shahCard from "@/assets/cases/shah-card.jpg";
 import shahFind from "@/assets/cases/shah-find.jpg";
-import shahHero from "@/assets/cases/shah-hero.jpg";
+import shahFull from "@/assets/cases/shah-full.jpg";
 
 /* ------------------------------------------------------------------ */
 /* Case visuals are built from DOM + inline SVG: browser chrome, real  */
@@ -21,7 +21,7 @@ import shahHero from "@/assets/cases/shah-hero.jpg";
 /* ------------------------------------------------------------------ */
 
 const SHAH_GALLERY = [
-  { src: shahHero, alt: "Главный экран сайта ШАХ LOUNGE", caption: "Главный экран" },
+  { src: shahFull, alt: "Сайт ШАХ LOUNGE целиком", caption: "Сайт целиком" },
   { src: shahFind, alt: "Страница «Как нас найти»", caption: "Как нас найти" },
   { src: shahBooking, alt: "Бронирование стола", caption: "Бронь стола" },
   { src: shahAtmosphere, alt: "Атмосфера зала", caption: "Атмосфера" },
@@ -61,14 +61,6 @@ function LockIcon() {
     >
       <rect x="5" y="11" width="14" height="9" rx="2" />
       <path d="M8.5 11V8.5a3.5 3.5 0 0 1 7 0V11" />
-    </svg>
-  );
-}
-
-function StarGlyph({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={className}>
-      <path d="m12 3 2.7 5.7 6.3.8-4.6 4.3 1.2 6.2L12 17l-5.6 3 1.2-6.2L3 9.5l6.3-.8L12 3Z" />
     </svg>
   );
 }
@@ -122,29 +114,6 @@ function Window({ path, children }: { path: string; children: ReactNode }) {
   );
 }
 
-function Bars({
-  heights,
-  accentIndex,
-  className = "",
-}: {
-  heights: string[];
-  accentIndex?: number;
-  className?: string;
-}) {
-  return (
-    <div className={`flex items-end gap-1 ${className}`}>
-      {heights.map((height, i) => (
-        <span
-          key={i}
-          className={`flex-1 rounded-t-[2px] ${
-            i === accentIndex ? "bg-accent" : "bg-line-strong"
-          } ${height}`}
-        />
-      ))}
-    </div>
-  );
-}
-
 function PhoneFrame({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
     <div
@@ -160,151 +129,18 @@ function PhoneFrame({ children, className = "" }: { children: ReactNode; classNa
 
 /* --------------------------- case mockups --------------------------- */
 
-/** 1 · АСКО PLUS / Asko Support — review admin for a fuel + EV-charge network. */
+/** 1 · АСКО PLUS / Asko Support — real admin screenshot (internal project). */
 function DashboardMockup() {
-  const nav = ["Отзывы", "Станции", "Менеджеры", "Статистика", "Настройки"];
-
-  const kpis: { label: string; value: string; delta?: string; star?: boolean }[] = [
-    { label: "Новые", value: "24", delta: "+6" },
-    { label: "Обработано", value: "118", delta: "+12" },
-    { label: "Средняя", value: "4,8", star: true },
-  ];
-
   return (
     <Window path={DOMAINS.dashboard}>
-      <div className="flex h-full">
-        <aside className="hidden w-[22%] shrink-0 flex-col border-r border-line p-3 md:flex">
-          <div className="flex items-center gap-1.5">
-            <span className="grid size-4 place-items-center rounded-[3px] bg-accent font-display text-[0.5rem] font-semibold leading-none text-accent-ink">
-              А
-            </span>
-            <span className="font-display text-[0.5rem] font-medium uppercase tracking-[0.16em] text-fg">
-              АСКО
-            </span>
-          </div>
-          <div className="mt-4 flex flex-col gap-1">
-            {nav.map((label, i) => (
-              <span
-                key={label}
-                className={`flex h-[18px] items-center gap-1.5 rounded-[4px] px-1.5 text-[0.5rem] leading-none ${
-                  i === 0 ? "bg-glass text-fg" : "text-faint"
-                }`}
-              >
-                <span
-                  className={`size-1 rounded-full ${i === 0 ? "bg-accent" : "bg-line-strong"}`}
-                />
-                {label}
-              </span>
-            ))}
-          </div>
-          <div className="mt-auto rounded-[5px] border border-line p-2">
-            <span className="block font-mono text-[0.4375rem] uppercase leading-none tracking-[0.08em] text-faint">
-              Онлайн
-            </span>
-            <span className="mt-1 block font-display text-[0.625rem] leading-none text-fg">
-              4 / 5
-            </span>
-          </div>
-        </aside>
-
-        <div className="flex min-w-0 flex-1 flex-col p-3">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <span className="block font-mono text-[0.4375rem] uppercase leading-none tracking-[0.14em] text-faint">
-                Модерация · Asko Support
-              </span>
-              <span className="mt-1 block font-display text-[0.625rem] leading-none text-fg">
-                Отзывы клиентов
-              </span>
-            </div>
-            <span className="shrink-0 rounded-[4px] bg-accent px-2 py-1 font-mono text-[0.4375rem] uppercase leading-none tracking-[0.06em] text-accent-ink">
-              + Ссылка
-            </span>
-          </div>
-
-          <div className="mt-2.5 grid shrink-0 grid-cols-3 gap-1.5">
-            {kpis.map((kpi) => (
-              <div key={kpi.label} className="rounded-[5px] border border-line bg-bg/40 p-1.5">
-                <span className="block font-mono text-[0.4375rem] uppercase leading-none tracking-[0.06em] text-faint">
-                  {kpi.label}
-                </span>
-                <span className="mt-1 flex items-baseline justify-between gap-1">
-                  <span className="font-display text-[0.625rem] leading-none text-fg">
-                    {kpi.value}
-                  </span>
-                  {kpi.star ? (
-                    <StarGlyph className="size-2 text-accent" />
-                  ) : (
-                    <span className="font-mono text-[0.4375rem] leading-none text-accent">
-                      {kpi.delta}
-                    </span>
-                  )}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-1.5 grid gap-1.5 md:min-h-0 md:flex-1 md:grid-cols-[1.6fr_1fr]">
-            <div className="flex flex-col rounded-[5px] border border-line bg-bg/40 p-2">
-              <div className="flex shrink-0 items-center justify-between">
-                <span className="font-mono text-[0.4375rem] uppercase tracking-[0.06em] text-faint">
-                  Отзывы за неделю
-                </span>
-                <span className="font-mono text-[0.4375rem] leading-none text-fg">318</span>
-              </div>
-              <Bars
-                heights={[
-                  "h-[38%]",
-                  "h-[58%]",
-                  "h-[44%]",
-                  "h-[72%]",
-                  "h-[56%]",
-                  "h-[92%]",
-                  "h-[68%]",
-                ]}
-                accentIndex={5}
-                className="mt-2 h-9 md:min-h-0 md:flex-1"
-              />
-              <div className="mt-1 flex shrink-0 justify-between font-mono text-[0.375rem] uppercase leading-none tracking-[0.04em] text-faint">
-                {["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"].map((day) => (
-                  <span key={day}>{day}</span>
-                ))}
-              </div>
-            </div>
-
-            <div className="hidden flex-col rounded-[5px] border border-line bg-bg/40 p-2 md:flex">
-              <span className="shrink-0 font-mono text-[0.4375rem] uppercase tracking-[0.06em] text-faint">
-                Последние
-              </span>
-              <div className="mt-1.5 flex flex-col gap-1.5 md:flex-1 md:justify-between">
-                {[
-                  { id: "№1842", place: "АЗС №12", stars: 5, state: "Принято" },
-                  { id: "№1841", place: "ЭЗС №4", stars: 4, state: "В работе" },
-                  { id: "№1840", place: "АЗС №7", stars: 5, state: "Новый" },
-                ].map((row) => (
-                  <div
-                    key={row.id}
-                    className="flex items-center justify-between gap-1.5 border-b border-line pb-1.5 last:border-b-0 last:pb-0"
-                  >
-                    <span className="min-w-0">
-                      <span className="block truncate font-mono text-[0.4375rem] leading-none text-fg">
-                        {row.id} · {row.place}
-                      </span>
-                      <span className="mt-1 flex items-center gap-[1px] text-accent">
-                        {Array.from({ length: row.stars }).map((_, i) => (
-                          <StarGlyph key={i} className="size-1.5" />
-                        ))}
-                      </span>
-                    </span>
-                    <span className="shrink-0 rounded-full border border-line px-1 py-0.5 font-mono text-[0.375rem] uppercase leading-none tracking-[0.02em] text-muted">
-                      {row.state}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="relative h-full w-full overflow-hidden bg-bg-deep">
+        <Image
+          src={askoShot}
+          alt="Админ-панель Asko Support: отзывы сети АЗС и ЭЗС"
+          fill
+          sizes="(max-width: 1024px) 92vw, 860px"
+          className="object-cover object-top"
+        />
       </div>
     </Window>
   );
@@ -451,7 +287,7 @@ function LandingMockup() {
             className="group/photo absolute inset-0 block cursor-zoom-in"
           >
             <Image
-              src={shahCard}
+              src={shahFull}
               alt=""
               aria-hidden
               fill
@@ -459,11 +295,11 @@ function LandingMockup() {
               className="scale-110 object-cover object-top opacity-60 blur-2xl"
             />
             <Image
-              src={shahCard}
+              src={shahFull}
               alt="Главный экран сайта ШАХ LOUNGE"
               fill
               sizes="(max-width: 1024px) 92vw, 860px"
-              className="object-contain object-top transition-transform duration-500 group-hover/photo:scale-[1.02] md:object-cover"
+              className="object-contain object-top transition-transform duration-500 group-hover/photo:scale-[1.02]"
             />
             <span className="pointer-events-none absolute right-2 top-2 rounded-full border border-line-strong bg-bg-deep/85 px-2 py-1 font-mono text-[0.4375rem] uppercase tracking-[0.08em] text-fg opacity-0 backdrop-blur transition-opacity group-hover/photo:opacity-100">
               {SHAH_GALLERY.length} фото
