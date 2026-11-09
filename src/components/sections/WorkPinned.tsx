@@ -7,7 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import CaseVisual from "@/components/sections/work/CaseVisual";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
-import { ArrowRight } from "@/components/ui/icons";
+import { ArrowRight, ArrowUpRight } from "@/components/ui/icons";
 import { site } from "@/content/site";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -15,7 +15,7 @@ gsap.registerPlugin(ScrollTrigger);
 const pad = (value: number) => String(value).padStart(2, "0");
 
 /** Pinned sections are height-constrained: the headline is scaled down a notch
- *  so five cards always fit inside one viewport, without touching the shared
+ *  so the cards always fit inside one viewport, without touching the shared
  *  SectionHeading component. */
 function workTitle(title: string, accent: string) {
   const at = title.indexOf(accent);
@@ -110,64 +110,91 @@ export default function WorkPinned() {
             aria-label="Проекты — горизонтальная галерея"
             className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-[var(--gutter)] pb-2 no-scrollbar [scroll-padding-inline:var(--gutter)] lg:min-h-0 lg:flex-1 lg:items-stretch lg:pb-0"
           >
-            {work.items.map((item, i) => (
-              <article
-                key={item.id}
-                className="group flex w-[min(78vw,860px)] shrink-0 snap-start flex-col overflow-hidden rounded-[28px] border border-line bg-bg-elev transition-colors duration-200 hover:border-line-strong lg:h-full"
-              >
-                <div className="relative h-[210px] shrink-0 overflow-hidden border-b border-line bg-bg-deep md:h-[240px] lg:h-auto lg:min-h-[160px] lg:flex-1">
-                  <div className="h-full w-full origin-center transition-transform duration-500 ease-out group-hover:scale-[1.02]">
-                    <CaseVisual visual={item.visual} tone={item.tone} />
-                  </div>
-                </div>
+            {work.items.map((item, i) => {
+              const cardClass =
+                "group flex w-[min(78vw,860px)] shrink-0 snap-start flex-col overflow-hidden rounded-[28px] border border-line bg-bg-elev transition-colors duration-200 hover:border-line-strong lg:h-full";
 
-                <div className="shrink-0 p-5 md:p-6">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-5">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                        <span className="font-display text-[0.8125rem] font-semibold uppercase tracking-[0.16em] text-fg">
-                          {item.client}
+              const content = (
+                <>
+                  <div className="relative h-[210px] shrink-0 overflow-hidden border-b border-line bg-bg-deep md:h-[240px] lg:h-auto lg:min-h-[160px] lg:flex-1">
+                    <div className="h-full w-full origin-center transition-transform duration-500 ease-out group-hover:scale-[1.02]">
+                      <CaseVisual visual={item.visual} tone={item.tone} />
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 p-5 md:p-6">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-5">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                          <span className="font-display text-[0.8125rem] font-semibold uppercase tracking-[0.16em] text-fg">
+                            {item.client}
+                          </span>
+                          <span className="type-label">
+                            {item.industry} · {item.year}
+                          </span>
+                        </div>
+                        <h3 className="mt-3 font-display text-[1.125rem] leading-[1.15] tracking-[-0.02em] text-fg md:text-[1.3125rem]">
+                          {item.title}
+                        </h3>
+                        <p className="mt-2 line-clamp-2 max-w-[58ch] text-[0.875rem] leading-[1.55] text-muted">
+                          {item.subtitle}
+                        </p>
+                      </div>
+
+                      <div className="shrink-0 sm:text-right">
+                        <span className="block font-display text-[1.5rem] font-medium leading-none tracking-[-0.04em] tabular-nums text-accent md:text-[2.125rem]">
+                          {item.result}
                         </span>
-                        <span className="type-label">
-                          {item.industry} · {item.year}
+                        <span className="mt-2 block max-w-[19ch] text-[0.6875rem] leading-[1.4] text-faint sm:ml-auto">
+                          {item.resultLabel}
                         </span>
                       </div>
-                      <h3 className="mt-3 font-display text-[1.125rem] leading-[1.15] tracking-[-0.02em] text-fg md:text-[1.3125rem]">
-                        {item.title}
-                      </h3>
-                      <p className="mt-2 line-clamp-2 max-w-[58ch] text-[0.875rem] leading-[1.55] text-muted">
-                        {item.subtitle}
-                      </p>
                     </div>
 
-                    <div className="shrink-0 sm:text-right">
-                      <span className="block font-display text-[1.5rem] font-medium leading-none tracking-[-0.04em] tabular-nums text-accent md:text-[2.125rem]">
-                        {item.result}
-                      </span>
-                      <span className="mt-2 block max-w-[19ch] text-[0.6875rem] leading-[1.4] text-faint sm:ml-auto">
-                        {item.resultLabel}
-                      </span>
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
+                      <ul className="flex flex-wrap gap-2">
+                        {item.services.map((service) => (
+                          <li
+                            key={service}
+                            className="rounded-full border border-line px-2.5 py-1 font-mono text-[0.625rem] uppercase leading-none tracking-[0.08em] text-faint"
+                          >
+                            {service}
+                          </li>
+                        ))}
+                      </ul>
+                      {item.url ? (
+                        <span className="type-label flex shrink-0 items-center gap-1.5 text-accent">
+                          Открыть сайт
+                          <ArrowUpRight aria-hidden className="size-3.5" />
+                        </span>
+                      ) : (
+                        <span className="type-label hidden shrink-0 sm:inline">
+                          Проект {pad(i + 1)}
+                        </span>
+                      )}
                     </div>
                   </div>
+                </>
+              );
 
-                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
-                    <ul className="flex flex-wrap gap-2">
-                      {item.services.map((service) => (
-                        <li
-                          key={service}
-                          className="rounded-full border border-line px-2.5 py-1 font-mono text-[0.625rem] uppercase leading-none tracking-[0.08em] text-faint"
-                        >
-                          {service}
-                        </li>
-                      ))}
-                    </ul>
-                    <span className="type-label hidden shrink-0 sm:inline">
-                      Проект {pad(i + 1)}
-                    </span>
-                  </div>
-                </div>
-              </article>
-            ))}
+              return item.url ? (
+                <a
+                  key={item.id}
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Открыть сайт ${item.client}`}
+                  draggable={false}
+                  className={`${cardClass} cursor-pointer`}
+                >
+                  {content}
+                </a>
+              ) : (
+                <article key={item.id} className={cardClass}>
+                  {content}
+                </article>
+              );
+            })}
           </div>
 
           <div className="mt-4 hidden shrink-0 items-center justify-between gap-6 px-[var(--gutter)] lg:flex">

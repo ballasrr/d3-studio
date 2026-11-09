@@ -1,13 +1,25 @@
+import Image from "next/image";
 import type { ReactNode } from "react";
 
 import type { CaseStudy } from "@/content/site";
 
+import shahAtmosphere from "@/assets/cases/shah-atmosphere.jpg";
+import shahBooking from "@/assets/cases/shah-booking.jpg";
+import shahFind from "@/assets/cases/shah-find.jpg";
+import shahHero from "@/assets/cases/shah-hero.jpg";
+
 /* ------------------------------------------------------------------ */
 /* Case visuals are built from DOM + inline SVG: browser chrome, real  */
 /* Russian UI labels, charts, tables and price grids. No raster art.   */
-/* D3 portfolio: Asko Support, ШАХ LOUNGE, E13-WASH, E13-CHARGE,       */
-/* E13-MONITORING / EVMap.                                             */
+/* D3 portfolio: Asko Support, ШАХ LOUNGE (real screenshots),          */
+/* E13-CHARGE.                                                         */
 /* ------------------------------------------------------------------ */
+
+const SHAH_SHOTS = [
+  { src: shahFind, alt: "Страница «Как нас найти»" },
+  { src: shahBooking, alt: "Бронь стола" },
+  { src: shahAtmosphere, alt: "Атмосфера зала" },
+] as const;
 
 const DOMAINS: Record<CaseStudy["visual"], string> = {
   dashboard: "review.asko-plus.ru/admin",
@@ -51,33 +63,6 @@ function StarGlyph({ className = "" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={className}>
       <path d="m12 3 2.7 5.7 6.3.8-4.6 4.3 1.2 6.2L12 17l-5.6 3 1.2-6.2L3 9.5l6.3-.8L12 3Z" />
-    </svg>
-  );
-}
-
-/** Neon lounge line: a doorway arch with a hookah silhouette. */
-function HookahGlyph({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 160 120"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-      className={className}
-    >
-      <path d="M34 110V56a46 46 0 0 1 92 0v54" />
-      <path d="M43 110V57a37 37 0 0 1 74 0v53" opacity="0.55" />
-      <path d="M80 101v-17" />
-      <ellipse cx="80" cy="101" rx="10" ry="3" />
-      <path d="M74 84h12l-2-5h-8l-2 5Z" />
-      <circle cx="80" cy="74" r="4" />
-      <path d="M88 87c12 0 18 6 17 14" opacity="0.8" />
-      <path d="M66 26v-6M64 23h4" opacity="0.7" />
-      <circle cx="52" cy="42" r="1.2" fill="currentColor" />
-      <circle cx="110" cy="36" r="1" fill="currentColor" />
     </svg>
   );
 }
@@ -323,79 +308,36 @@ function DashboardMockup() {
 function LandingMockup() {
   return (
     <Window path={DOMAINS.landing}>
-      <div className="flex h-full flex-col">
-        <div className="flex h-8 shrink-0 items-center justify-between gap-2 border-b border-line px-3">
-          <span className="font-display text-[0.5625rem] font-medium uppercase tracking-[0.22em] text-fg">
-            ШАХ LOUNGE
-          </span>
-          <span className="hidden items-center gap-3 font-mono text-[0.4375rem] uppercase tracking-[0.08em] text-faint md:flex">
-            <span>Меню</span>
-            <span>Зоны</span>
-            <span>Бронь</span>
-            <span>Контакты</span>
-          </span>
-          <span className="rounded-full border border-line px-1.5 py-0.5 font-mono text-[0.4375rem] uppercase leading-none tracking-[0.04em] text-fg">
-            18+
-          </span>
-        </div>
+      <div className="relative h-full w-full overflow-hidden bg-bg-deep">
+        <Image
+          src={shahHero}
+          alt="Главный экран сайта ШАХ LOUNGE"
+          fill
+          sizes="(max-width: 1024px) 92vw, 860px"
+          className="object-cover object-top"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-deep via-bg-deep/35 to-transparent" />
 
-        <div className="grid min-h-0 flex-1 gap-3 p-3 md:grid-cols-[1.15fr_0.85fr]">
-          <div className="flex flex-col justify-center">
-            <span className="font-mono text-[0.4375rem] uppercase tracking-[0.14em] text-faint">
-              Махачкала · Газопроводная 6Б
+        <div className="absolute inset-x-3 bottom-3 flex items-end justify-between gap-3">
+          <div className="min-w-0">
+            <span className="font-mono text-[0.4375rem] uppercase tracking-[0.14em] text-accent">
+              Сайт · shah-hookah-bar.ru
             </span>
-            <span className="mt-1.5 font-display text-[0.875rem] font-medium leading-[1.02] tracking-[-0.04em] text-fg md:text-[1.25rem]">
-              Дым. Свет.
-              <br />
-              Музыка.
-            </span>
-            <p className="mt-1.5 max-w-[34ch] text-[0.4375rem] leading-[1.5] text-faint">
-              Кальянная и кофейня в центре Махачкалы. Зал, PS5 и бильярд — бронь на вечер.
+            <p className="mt-1 font-display text-[0.75rem] leading-[1.1] tracking-[-0.02em] text-fg md:text-[0.9375rem]">
+              Кальянная и кофейня в Махачкале
             </p>
-            <div className="mt-2 flex flex-wrap items-center gap-1.5">
-              <span className="rounded-full bg-accent px-2 py-1 font-mono text-[0.4375rem] uppercase leading-none tracking-[0.04em] text-accent-ink">
-                Забронировать
-              </span>
-              <span className="rounded-full border border-line px-2 py-1 font-mono text-[0.4375rem] uppercase leading-none tracking-[0.04em] text-muted">
-                Смотреть меню
-              </span>
-            </div>
           </div>
 
-          <div className="relative hidden overflow-hidden rounded-[6px] border border-line bg-bg/40 md:block">
-            <span className="absolute left-2 top-2 font-mono text-[0.4375rem] uppercase tracking-[0.08em] text-faint">
-              Зал · 18+
-            </span>
-            <HookahGlyph className="absolute inset-0 m-auto w-[70%] text-accent-dim drop-shadow-[0_0_12px_var(--accent)]" />
-            <span className="absolute bottom-2 right-2 rounded-full border border-line bg-bg-deep/80 px-2 py-1 font-mono text-[0.4375rem] uppercase leading-none tracking-[0.04em] text-muted">
-              NEON
-            </span>
+          <div className="hidden shrink-0 items-center gap-1.5 md:flex">
+            {SHAH_SHOTS.map((shot) => (
+              <span
+                key={shot.alt}
+                className="relative block h-9 w-14 overflow-hidden rounded-[4px] border border-line-strong/70 bg-bg-deep"
+              >
+                <Image src={shot.src} alt={shot.alt} fill sizes="56px" className="object-cover" />
+              </span>
+            ))}
           </div>
-        </div>
-
-        <div className="grid shrink-0 grid-cols-3 gap-1.5 border-t border-line px-3 py-2">
-          {[
-            { title: "Зал", meta: "6–10 гостей", price: "2 000 ₽" },
-            { title: "PS5", meta: "2 часа", price: "1 500 ₽" },
-            { title: "Бильярд", meta: "час", price: "1 000 ₽" },
-          ].map((zone) => (
-            <div
-              key={zone.title}
-              className="flex items-center justify-between gap-2 rounded-[5px] border border-line px-2 py-1.5"
-            >
-              <span className="min-w-0">
-                <span className="block truncate font-mono text-[0.4375rem] uppercase leading-none tracking-[0.04em] text-fg">
-                  {zone.title}
-                </span>
-                <span className="mt-0.5 block truncate font-mono text-[0.375rem] leading-none text-faint">
-                  {zone.meta}
-                </span>
-              </span>
-              <span className="shrink-0 font-display text-[0.5rem] leading-none text-fg">
-                {zone.price}
-              </span>
-            </div>
-          ))}
         </div>
       </div>
     </Window>

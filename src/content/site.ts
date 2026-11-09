@@ -37,6 +37,8 @@ export type CaseStudy = {
   resultLabel: string;
   visual: "dashboard" | "landing" | "commerce" | "mobile" | "configurator";
   tone: "lime" | "neutral" | "warm" | "ice";
+  /** Публичный адрес проекта, если это сайт/сервис с открытой страницей. */
+  url?: string;
 };
 
 export type ProcessStep = {
@@ -106,7 +108,7 @@ export const site = {
       { label: "Запуск", value: "6–10 недель от брифа" },
     ],
     stats: [
-      { value: 5, label: "проектов в проде" },
+      { value: 3, label: "проекта в проде и разработке" },
       { value: 3, label: "отрасли: ЭЗС, HoReCa, авто" },
       { value: 0, label: "посредников — работаете напрямую" },
     ] as Stat[],
@@ -118,10 +120,7 @@ export const site = {
       { name: "АСКО PLUS", style: "display" },
       { name: "ШАХ LOUNGE", style: "sans" },
       { name: "E13-CHARGE", style: "mono" },
-      { name: "E13-WASH", style: "outline" },
-      { name: "E13-MONITORING", style: "sans" },
-      { name: "EVMap", style: "mono" },
-      { name: "TRASSIR", style: "outline" },
+      { name: "ASKO SUPPORT", style: "outline" },
     ],
   },
 
@@ -149,7 +148,7 @@ export const site = {
       },
     ],
     metrics: [
-      { value: 5, label: "проектов в проде", note: "от сайтов до платёжных сервисов" },
+      { value: 3, label: "проекта в проде", note: "от сайтов до платёжных сервисов" },
       { value: 3, label: "отрасли", note: "АЗС/ЭЗС, HoReCa, автобизнес" },
       { value: 14, suffix: " дн", label: "минимальный срок лендинга", note: "от брифа до публикации" },
     ],
@@ -229,7 +228,7 @@ export const site = {
     title: "Проекты, которые уже работают",
     accent: "работают",
     description:
-      "Пять реальных проектов: от сайта кальянной до платёжного микросервиса для зарядной сети. Без выдуманных логотипов — только задачи, код и результат.",
+      "Три реальных проекта: сайт кальянной, сервис отзывов для сети АЗС/ЭЗС и платёжный микросервис для зарядной сети. Без выдуманных логотипов — только задачи, код и результат.",
     items: [
       {
         id: "asko-support",
@@ -244,6 +243,7 @@ export const site = {
         resultLabel: "ручных пересылок отзывов",
         visual: "dashboard",
         tone: "lime",
+        url: "https://review.asko-plus.ru/",
       },
       {
         id: "shah-lounge",
@@ -258,6 +258,7 @@ export const site = {
         resultLabel: "комиссий агрегаторам за брони",
         visual: "landing",
         tone: "neutral",
+        url: "https://shah-hookah-bar.ru/",
       },
       {
         id: "e13-charge",
@@ -272,34 +273,6 @@ export const site = {
         resultLabel: "платёжный микросервис · сейчас в разработке",
         visual: "mobile",
         tone: "lime",
-      },
-      {
-        id: "e13-wash",
-        client: "E13-WASH",
-        title: "Бэкенд роботизированных автомоек",
-        subtitle:
-          "FastAPI и интеграция CrestWave: запуск мойки с терминала, бонусные аккаунты, оплата и логи оборудования в ClickHouse.",
-        industry: "Автомойки",
-        year: "2025",
-        services: ["FastAPI", "PostgreSQL", "ClickHouse", "Docker"],
-        result: "24/7",
-        resultLabel: "мойки работают без оператора",
-        visual: "commerce",
-        tone: "ice",
-      },
-      {
-        id: "e13-monitoring",
-        client: "E13-MONITORING",
-        title: "Реестр и карта зарядных станций",
-        subtitle:
-          "EVMap: паспорта площадок, оборудование с OCPP-id, документы с версиями и контроль сроков ТО для сети электрозарядных станций.",
-        industry: "Энергетика",
-        year: "2025",
-        services: ["Веб-приложение", "Карта", "Документооборот"],
-        result: "EVMap",
-        resultLabel: "единый реестр ЭЗС вместо Excel-таблиц",
-        visual: "configurator",
-        tone: "warm",
       },
     ] as CaseStudy[],
   },
