@@ -23,6 +23,26 @@ location = /d3 {
     return 301 /d3/;
 }
 
+# заявки: приём в SQLite и приватный список
+location ^~ /d3/api/ {
+    rewrite ^/d3/api/(.*)$ /$1 break;
+    proxy_pass http://127.0.0.1:8124;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    client_max_body_size 32k;
+    proxy_read_timeout 15s;
+}
+
+location ^~ /d3/leads {
+    rewrite ^/d3/leads(.*)$ /leads$1 break;
+    proxy_pass http://127.0.0.1:8124;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+}
+
 # хешированные ассеты Next.js кешируются на год
 location ^~ /d3/_next/ {
     root /var/www;

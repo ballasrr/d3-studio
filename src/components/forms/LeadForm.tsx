@@ -19,7 +19,7 @@ import {
 
 const { form } = site.contact;
 
-type FormStatus = "idle" | "sending" | "success";
+type FormStatus = "idle" | "sending" | "success" | "error";
 
 const BUDGETS = form.budgets;
 const DEFAULT_BUDGET = BUDGETS[BUDGETS.length - 1];
@@ -120,7 +120,7 @@ export default function LeadForm() {
     }));
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (sending) return;
 
@@ -137,8 +137,22 @@ export default function LeadForm() {
 
     setErrors({});
     setStatus("sending");
-    const timer = window.setTimeout(() => setStatus("success"), 700);
-    timers.current.push(timer);
+
+    try {
+      const endpoint = new URL("api/lead", window.location.href);
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...values,
+          page: window.location.pathname + window.location.search,
+        }),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      setStatus("success");
+    } catch {
+      setStatus("error");
+    }
   };
 
   const reset = () => {
@@ -334,6 +348,11 @@ export default function LeadForm() {
         >
           {sending ? form.sending : form.submit}
         </MagneticButton>
+        {status === "error" ? (
+          <p role="alert" className="text-[0.8125rem] leading-[1.45] text-danger">
+            {form.errorSend}
+          </p>
+        ) : null}
         <p className="max-w-[52ch] text-[0.75rem] leading-[1.5] text-muted">{form.privacy}</p>
       </div>
     </form>
