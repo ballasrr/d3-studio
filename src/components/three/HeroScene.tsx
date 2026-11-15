@@ -2,6 +2,10 @@
 
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
+import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";
+
+import fontData from "@/assets/fonts/helvetiker_bold.typeface.json";
 
 /**
  * Liquid-chrome hero scene (plain three.js — no R3F, no postprocessing).
@@ -241,15 +245,25 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
     const rig = new THREE.Group();
     scene.add(rig);
 
-    /* ---- chrome blob ---- */
+    /* ---- chrome numeral: “3” for the third dimension ---- */
     const isMobile = width < 768;
-    const segments = isMobile ? 96 : 160;
-    const geometry = new THREE.TorusKnotGeometry(0.9, 0.29, segments * 2, Math.round(segments * 0.35), 2, 3);
-    geometry.rotateX(Math.PI * 0.12);
-    geometry.rotateZ(Math.PI * 0.18);
+    const font = new FontLoader().parse(fontData as never);
+    const geometry = new TextGeometry("3", {
+      font,
+      size: 1.85,
+      depth: 0.6,
+      curveSegments: isMobile ? 12 : 20,
+      bevelEnabled: true,
+      bevelThickness: 0.08,
+      bevelSize: 0.065,
+      bevelSegments: 6,
+    });
+    geometry.center();
+    geometry.computeVertexNormals();
+
     const uniforms = {
       uTime: { value: 0 },
-      uAmp: { value: 1 },
+      uAmp: { value: 0.25 },
       uAccent: { value: ACCENT },
     };
     const material = new THREE.ShaderMaterial({
@@ -257,6 +271,7 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
       vertexShader: VERT,
       fragmentShader: FRAG,
     });
+
     const blob = new THREE.Mesh(geometry, material);
     rig.add(blob);
 
@@ -403,8 +418,8 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
       pointerSmooth.lerp(pointer, 0.045);
       dustUniforms.uPointer.value.copy(pointerSmooth);
 
-      const targetRotY = pointerSmooth.x * 0.34 + elapsed * 0.075;
-      const targetRotX = pointerSmooth.y * 0.2 + Math.sin(elapsed * 0.18) * 0.05;
+      const targetRotY = pointerSmooth.x * 0.2 + Math.sin(elapsed * 0.22) * 0.09;
+      const targetRotX = pointerSmooth.y * 0.12 + Math.sin(elapsed * 0.16) * 0.03;
       rig.rotation.y += (targetRotY - rig.rotation.y) * 0.05;
       rig.rotation.x += (targetRotX - rig.rotation.x) * 0.05;
 
