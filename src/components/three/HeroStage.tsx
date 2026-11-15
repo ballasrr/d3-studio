@@ -31,7 +31,7 @@ export default function HeroStage() {
         fill
         priority
         sizes="100vw"
-        className="scale-[1.2] object-cover object-[50%_42%] md:scale-[1.32] md:translate-x-[9%]"
+        className="scale-[1.2] object-cover object-[50%_42%] md:scale-[1.15] md:translate-x-[7%]"
       />
       <video
         ref={videoRef}
@@ -43,10 +43,10 @@ export default function HeroStage() {
         poster="hero-bg-poster.jpg"
         aria-hidden
         tabIndex={-1}
-        className="absolute inset-0 h-full w-full scale-[1.2] object-cover object-[50%_42%] motion-reduce:hidden md:scale-[1.32] md:translate-x-[9%]"
+        className="absolute inset-0 h-full w-full scale-[1.2] object-cover object-[50%_42%] motion-reduce:hidden md:scale-[1.15] md:translate-x-[7%]"
       >
-        <source src="hero-bg-720.mp4" media="(max-width: 768px)" type="video/mp4" />
-        <source src="hero-bg.mp4" type="video/mp4" />
+        <source src="hero-bg-1600.mp4" media="(max-width: 768px)" type="video/mp4" />
+        <source src="hero-bg-hq.mp4" type="video/mp4" />
       </video>
 
       {/* desktop: calm left column for the headline */}
