@@ -116,28 +116,31 @@ const FRAG = /* glsl */ `
   varying vec3 vViewDir;
   varying vec3 vPos;
 
-  // Procedural photo studio with hard-edged light bands: chrome is defined by
-  // contrast, so the environment is bands + one softbox rectangle, not a gradient.
+  // Dark-metal studio: almost black base, cold steel horizon and lime energy
+  // strips reflected in the surface. Chrome reads through contrast, not brightness.
   vec3 env(vec3 r) {
     float y = r.y;
-    vec3 col = vec3(0.018, 0.02, 0.026);
-    col = mix(col, vec3(0.07, 0.075, 0.085), smoothstep(-0.95, -0.25, y));
-    col = mix(col, vec3(0.78, 0.81, 0.85), smoothstep(-0.24, -0.17, y) * (1.0 - smoothstep(0.2, 0.27, y)));
-    col = mix(col, vec3(0.05, 0.055, 0.065), smoothstep(0.22, 0.3, y) * (1.0 - smoothstep(0.48, 0.54, y)));
-    col = mix(col, vec3(0.55, 0.58, 0.62), smoothstep(0.52, 0.58, y));
+    vec3 col = vec3(0.003, 0.005, 0.007);
+    col = mix(col, vec3(0.016, 0.022, 0.024), smoothstep(-0.95, -0.35, y));
+    col = mix(col, vec3(0.38, 0.44, 0.45), smoothstep(-0.3, -0.22, y) * (1.0 - smoothstep(0.18, 0.24, y)));
+    col = mix(col, vec3(0.018, 0.025, 0.027), smoothstep(0.2, 0.28, y) * (1.0 - smoothstep(0.5, 0.58, y)));
+    col = mix(col, vec3(0.22, 0.26, 0.27), smoothstep(0.55, 0.62, y));
 
-    // softbox rectangle reflected in the upper metal
-    float winX = smoothstep(-0.72, -0.58, r.x) * (1.0 - smoothstep(0.1, 0.24, r.x));
-    float winY = smoothstep(0.3, 0.36, y) * (1.0 - smoothstep(0.58, 0.66, y));
-    col += vec3(0.55, 0.58, 0.62) * winX * winY;
+    // thin cool softbox reflected in the upper metal
+    float winX = smoothstep(-0.75, -0.6, r.x) * (1.0 - smoothstep(0.05, 0.2, r.x));
+    float winY = smoothstep(0.32, 0.38, y) * (1.0 - smoothstep(0.58, 0.66, y));
+    col += vec3(0.45, 0.5, 0.52) * winX * winY;
 
-    // hard angled strip light
-    float strip = smoothstep(0.045, 0.0, abs(r.x * 0.8 + r.z * 0.5 - 0.55));
-    col += vec3(0.8) * strip * smoothstep(-0.2, 0.2, y) * (1.0 - smoothstep(0.4, 0.6, y));
+    // bright lime energy strip
+    float strip = smoothstep(0.05, 0.0, abs(r.x * 0.8 + r.z * 0.5 - 0.55));
+    col += vec3(0.24, 0.36, 0.06) * strip * smoothstep(-0.25, 0.15, y) * (1.0 - smoothstep(0.35, 0.55, y)) * 0.5;
 
-    // warm kicker, right
-    float warm = pow(max(dot(normalize(r), normalize(vec3(0.9, 0.2, 0.3))), 0.0), 18.0);
-    col += vec3(0.5, 0.4, 0.3) * warm * 0.4;
+    // lime kicker from the right
+    float lime = pow(max(dot(normalize(r), normalize(vec3(0.85, 0.25, 0.35))), 0.0), 16.0);
+    col += vec3(0.2, 0.32, 0.05) * lime * 0.35;
+
+    // faint warm bounce from below
+    col += vec3(0.05, 0.04, 0.03) * smoothstep(0.1, -0.9, y);
 
     return col;
   }
@@ -148,18 +151,24 @@ const FRAG = /* glsl */ `
     vec3 R = reflect(-V, N);
 
     vec3 col = env(R);
+    col *= 0.6;
 
-    // tight specular sheen
+    // tight cold specular sheen
     float spec = pow(max(dot(R, normalize(vec3(-0.4, 0.8, 0.6))), 0.0), 90.0);
-    col += vec3(1.0) * spec * 1.0;
+    col += vec3(0.75, 0.82, 0.8) * spec * 0.8;
 
-    // fresnel: chrome edges catch the horizon; a whisper of lime on the rim
-    float fres = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), 3.0);
-    col += uAccent * fres * 0.07;
-    col += vec3(0.4, 0.43, 0.46) * pow(fres, 1.1) * 0.55;
+    // pulsing lime energy on the edges
+    float pulse = 0.78 + 0.22 * sin(uTime * 1.6);
+    float fres = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), 2.6);
+    col += uAccent * fres * 0.14 * pulse;
+    col += vec3(0.2, 0.3, 0.07) * pow(fres, 1.8) * 0.2 * pulse;
 
-    // darken the core slightly so the rim reads
-    col *= mix(0.88, 1.04, smoothstep(0.0, 0.9, fres));
+    // hot lime glint, like a reflected power source
+    float glint = pow(max(dot(R, normalize(vec3(0.7, 0.45, 0.4))), 0.0), 36.0);
+    col += vec3(0.72, 1.0, 0.28) * glint * 0.8 * pulse;
+
+    // darken the core so the lime rim reads
+    col *= mix(0.72, 1.08, smoothstep(0.0, 0.9, fres));
 
     gl_FragColor = vec4(col, 1.0);
 
@@ -280,9 +289,9 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
     /* ---- orbit hairlines ---- */
     const ringGeoA = new THREE.TorusGeometry(1.92, 0.0045, 6, 220);
     const ringMatA = new THREE.MeshBasicMaterial({
-      color: 0xdfe5e2,
+      color: 0x9fb26a,
       transparent: true,
-      opacity: 0.22,
+      opacity: 0.28,
     });
     const ringA = new THREE.Mesh(ringGeoA, ringMatA);
     ringA.rotation.set(1.22, -0.32, 0.18);
@@ -290,9 +299,9 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
 
     const ringGeoB = new THREE.TorusGeometry(2.3, 0.003, 6, 220);
     const ringMatB = new THREE.MeshBasicMaterial({
-      color: 0xdfe5e2,
+      color: 0x64734a,
       transparent: true,
-      opacity: 0.12,
+      opacity: 0.16,
     });
     const ringB = new THREE.Mesh(ringGeoB, ringMatB);
     ringB.rotation.set(1.05, 0.42, -0.22);
@@ -322,13 +331,13 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
     bead.add(beadGlow);
 
     /* ---- backdrop halo ---- */
-    const haloRed = glowTexture("rgba(120,140,160,0.35)", 0.4);
+    const haloRed = glowTexture("rgba(90,140,60,0.35)", 0.4);
     const haloRedMat = new THREE.SpriteMaterial({
       map: haloRed ?? undefined,
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
-      opacity: 0.5,
+      opacity: 0.45,
     });
     const halo = new THREE.Sprite(haloRedMat);
     halo.scale.set(6, 6, 1);
@@ -342,7 +351,7 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
-      opacity: 0.18,
+      opacity: 0.2,
     });
     const haloA = new THREE.Sprite(haloAccentMat);
     haloA.scale.set(3.4, 3.4, 1);
@@ -368,7 +377,7 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
     const dustUniforms = {
       uTime: { value: 0 },
       uPointer: { value: new THREE.Vector2() },
-      uColor: { value: new THREE.Color("#cfd6d2") },
+      uColor: { value: new THREE.Color("#c8e79a") },
     };
     const dustMat = new THREE.ShaderMaterial({
       uniforms: dustUniforms,
@@ -386,8 +395,8 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
       const aspect = width / height;
       const portrait = aspect < 0.95;
       if (portrait) {
-        rig.position.set(0.22, 1.42, 0);
-        rig.scale.setScalar(0.36);
+        rig.position.set(0.22, 1.62, 0);
+        rig.scale.setScalar(0.33);
         camera.position.z = 5.9;
       } else {
         // Frame the sculpture in the right third of the canvas at any width:
