@@ -31,14 +31,23 @@ export default function HeroStage() {
         <span className="absolute bottom-0 left-0 size-3 border-b border-l border-line-strong/50" />
         <span className="absolute bottom-0 right-0 size-3 border-b border-r border-line-strong/50" />
         <span className="absolute left-0 top-4 font-mono text-[0.5625rem] uppercase tracking-[0.16em] text-faint">
-          OBJ. 01 · LIQUID CHROME
+          OBJ. 01 · BLACK HOLE
         </span>
         <span className="absolute bottom-4 right-0 font-mono text-[0.5625rem] uppercase tracking-[0.16em] text-faint">
-          REAL-TIME · WEBGL
+          ACCRETION DISK · REAL-TIME
         </span>
       </div>
 
       <Scene />
+
+      {/* keeps the headline readable where the disk reaches the left column */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(90deg, var(--bg) 0%, color-mix(in oklab, var(--bg) 78%, transparent) 36%, transparent 66%)",
+        }}
+      />
     </div>
   );
 }

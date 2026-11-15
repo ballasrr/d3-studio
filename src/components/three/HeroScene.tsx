@@ -2,184 +2,127 @@
 
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
-import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";
-
-import fontData from "@/assets/fonts/helvetiker_bold.typeface.json";
 
 /**
- * Liquid-chrome hero scene (plain three.js — no R3F, no postprocessing).
+ * Black-hole hero — a single full-screen shader.
  *
- * - Icosahedron-ish sphere, displaced in the vertex shader with simplex noise,
- *   normals recomputed by finite differences, shaded with a procedural studio
- *   environment (chrome) + lime fresnel.
- * - Orbiting hairlines with an accent bead, drifting dust, fake bloom sprites.
- * - Pointer parallax + scroll-linked camera, throttled DPR, pauses offscreen,
- *   renders a single frame when prefers-reduced-motion is set.
- * - Everything created by hand is disposed on unmount; the canvas dies with it.
+ * - event horizon, photon ring and a turbulent accretion disk;
+ * - cheap gravitational lensing of a procedural star field around the hole;
+ * - lime-white inner disk → amber outer edge to stay on brand;
+ * - pointer parallax, DPR cap, pauses off-screen, one static frame for
+ *   prefers-reduced-motion.
  */
 
 const ACCENT = new THREE.Color("#d4ff5c");
 
 const VERT = /* glsl */ `
-  uniform float uTime;
-  uniform float uAmp;
-
-  varying vec3 vNormal;
-  varying vec3 vViewDir;
-  varying vec3 vPos;
-
-  vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-  vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-  vec4 permute(vec4 x) { return mod289(((x * 34.0) + 1.0) * x); }
-  vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
-
-  float snoise(vec3 v) {
-    const vec2 C = vec2(1.0 / 6.0, 1.0 / 3.0);
-    const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
-    vec3 i  = floor(v + dot(v, C.yyy));
-    vec3 x0 = v - i + dot(i, C.xxx);
-    vec3 g = step(x0.yzx, x0.xyz);
-    vec3 l = 1.0 - g;
-    vec3 i1 = min(g.xyz, l.zxy);
-    vec3 i2 = max(g.xyz, l.zxy);
-    vec3 x1 = x0 - i1 + C.xxx;
-    vec3 x2 = x0 - i2 + C.yyy;
-    vec3 x3 = x0 - D.yyy;
-    i = mod289(i);
-    vec4 p = permute(permute(permute(
-              i.z + vec4(0.0, i1.z, i2.z, 1.0))
-            + i.y + vec4(0.0, i1.y, i2.y, 1.0))
-            + i.x + vec4(0.0, i1.x, i2.x, 1.0));
-    float n_ = 0.142857142857;
-    vec3 ns = n_ * D.wyz - D.xzx;
-    vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
-    vec4 x_ = floor(j * ns.z);
-    vec4 y_ = floor(j - 7.0 * x_);
-    vec4 x = x_ * ns.x + ns.yyyy;
-    vec4 y = y_ * ns.x + ns.yyyy;
-    vec4 h = 1.0 - abs(x) - abs(y);
-    vec4 b0 = vec4(x.xy, y.xy);
-    vec4 b1 = vec4(x.zw, y.zw);
-    vec4 s0 = floor(b0) * 2.0 + 1.0;
-    vec4 s1 = floor(b1) * 2.0 + 1.0;
-    vec4 sh = -step(h, vec4(0.0));
-    vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
-    vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
-    vec3 p0 = vec3(a0.xy, h.x);
-    vec3 p1 = vec3(a0.zw, h.y);
-    vec3 p2 = vec3(a1.xy, h.z);
-    vec3 p3 = vec3(a1.zw, h.w);
-    vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));
-    p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
-    vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);
-    m = m * m;
-    return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
-  }
-
-  float ripple(vec3 p) {
-    return snoise(p * 2.4 + vec3(0.0, uTime * 0.12, 0.0)) * 0.006 * uAmp;
-  }
-
+  varying vec2 vUv;
   void main() {
-    vec3 p = position + normal * ripple(position);
-    vNormal = normalize(normalMatrix * normal);
-    vec4 pView = modelViewMatrix * vec4(p, 1.0);
-    vViewDir = normalize(-pView.xyz);
-    vPos = pView.xyz;
-    gl_Position = projectionMatrix * pView;
+    vUv = uv;
+    gl_Position = vec4(position.xy, 0.0, 1.0);
   }
 `;
 
 const FRAG = /* glsl */ `
   precision highp float;
 
-  uniform vec3 uAccent;
   uniform float uTime;
-
-  varying vec3 vNormal;
-  varying vec3 vViewDir;
-  varying vec3 vPos;
-
-  // Procedural photo studio with hard-edged light bands: chrome is defined by
-  // contrast, so the environment is bands + one softbox rectangle, not a gradient.
-  vec3 env(vec3 r) {
-    float y = r.y;
-    vec3 col = vec3(0.018, 0.02, 0.026);
-    col = mix(col, vec3(0.07, 0.075, 0.085), smoothstep(-0.95, -0.25, y));
-    col = mix(col, vec3(0.78, 0.81, 0.85), smoothstep(-0.24, -0.17, y) * (1.0 - smoothstep(0.2, 0.27, y)));
-    col = mix(col, vec3(0.05, 0.055, 0.065), smoothstep(0.22, 0.3, y) * (1.0 - smoothstep(0.48, 0.54, y)));
-    col = mix(col, vec3(0.55, 0.58, 0.62), smoothstep(0.52, 0.58, y));
-
-    // softbox rectangle reflected in the upper metal
-    float winX = smoothstep(-0.72, -0.58, r.x) * (1.0 - smoothstep(0.1, 0.24, r.x));
-    float winY = smoothstep(0.3, 0.36, y) * (1.0 - smoothstep(0.58, 0.66, y));
-    col += vec3(0.55, 0.58, 0.62) * winX * winY;
-
-    // hard angled strip light
-    float strip = smoothstep(0.045, 0.0, abs(r.x * 0.8 + r.z * 0.5 - 0.55));
-    col += vec3(0.8) * strip * smoothstep(-0.2, 0.2, y) * (1.0 - smoothstep(0.4, 0.6, y));
-
-    // warm kicker, right
-    float warm = pow(max(dot(normalize(r), normalize(vec3(0.9, 0.2, 0.3))), 0.0), 18.0);
-    col += vec3(0.5, 0.4, 0.3) * warm * 0.4;
-
-    return col;
-  }
-
-  void main() {
-    vec3 N = normalize(vNormal);
-    vec3 V = normalize(vViewDir);
-    vec3 R = reflect(-V, N);
-
-    vec3 col = env(R);
-
-    // tight specular sheen
-    float spec = pow(max(dot(R, normalize(vec3(-0.4, 0.8, 0.6))), 0.0), 90.0);
-    col += vec3(1.0) * spec * 1.0;
-
-    // fresnel: chrome edges catch the horizon; a whisper of lime on the rim
-    float fres = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), 3.0);
-    col += uAccent * fres * 0.1;
-    col += vec3(0.4, 0.43, 0.46) * pow(fres, 1.1) * 0.55;
-
-    // darken the core slightly so the rim reads
-    col *= mix(0.88, 1.04, smoothstep(0.0, 0.9, fres));
-
-    gl_FragColor = vec4(col, 1.0);
-
-    #include <tonemapping_fragment>
-    #include <colorspace_fragment>
-  }
-`;
-
-const DUST_VERT = /* glsl */ `
-  attribute float aSize;
-  attribute float aSeed;
-  uniform float uTime;
+  uniform float uAspect;
   uniform vec2 uPointer;
-  varying float vAlpha;
-  void main() {
-    vec3 p = position;
-    p.y += sin(uTime * 0.22 + aSeed * 6.2831) * 0.16;
-    p.x += cos(uTime * 0.18 + aSeed * 6.2831) * 0.12;
-    p.xy += uPointer * (0.06 + aSeed * 0.12);
-    vec4 mv = modelViewMatrix * vec4(p, 1.0);
-    gl_PointSize = aSize * (44.0 / -mv.z);
-    gl_Position = projectionMatrix * mv;
-    vAlpha = smoothstep(0.0, 0.7, 1.0 - (-mv.z - 1.2) / 7.0);
-  }
-`;
+  uniform vec2 uCenter;
+  uniform float uSize;
+  uniform vec3 uAccent;
 
-const DUST_FRAG = /* glsl */ `
-  varying float vAlpha;
-  uniform vec3 uColor;
+  varying vec2 vUv;
+
+  float hash21(vec2 p) {
+    p = fract(p * vec2(123.34, 456.21));
+    p += dot(p, p + 45.32);
+    return fract(p.x * p.y);
+  }
+
+  float noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = hash21(i);
+    float b = hash21(i + vec2(1.0, 0.0));
+    float c = hash21(i + vec2(0.0, 1.0));
+    float d = hash21(i + vec2(1.0, 1.0));
+    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+  }
+
+  float fbm(vec2 p) {
+    float v = 0.0;
+    float a = 0.5;
+    for (int i = 0; i < 4; i++) {
+      v += a * noise(p);
+      p = p * 2.02 + 17.3;
+      a *= 0.5;
+    }
+    return v;
+  }
+
+  vec2 rot(vec2 p, float a) {
+    float c = cos(a);
+    float s = sin(a);
+    return vec2(c * p.x - s * p.y, s * p.x + c * p.y);
+  }
+
   void main() {
-    vec2 c = gl_PointCoord - 0.5;
-    float d = length(c);
-    if (d > 0.5) discard;
-    float a = smoothstep(0.5, 0.0, d) * vAlpha * 0.34;
-    gl_FragColor = vec4(uColor, a);
+    vec2 p = (vUv - 0.5) * vec2(uAspect, 1.0) - uCenter;
+    p -= uPointer * 0.012;
+
+    float r = length(p);
+    float horizon = 0.19 * uSize;
+
+    // ---- gravitational lensing of the background star field ----
+    vec2 warped = p * (1.0 + 0.55 * horizon * horizon / (r * r + 0.012));
+    vec2 cell = warped * 26.0;
+    vec2 id = floor(cell);
+    vec2 f = fract(cell) - 0.5;
+    float h = hash21(id);
+    vec2 offset = vec2(hash21(id + 1.7), hash21(id + 4.3)) - 0.5;
+    float star = smoothstep(0.035, 0.0, length(f - offset * 0.7)) * step(0.9, h);
+    star *= 0.55 + 0.45 * sin(uTime * 1.6 + h * 21.0);
+    float starFade = smoothstep(0.85, 0.35, r) * smoothstep(0.02, 0.11, r);
+    vec3 col = vec3(0.62, 0.76, 0.86) * star * starFade * 0.8;
+
+    // ---- accretion disk: flattened, rotating, doppler-brightened ----
+    vec2 q = rot(p, 0.24 + uTime * 0.015);
+    q.y /= 0.26;
+    float rd = length(q);
+    float ang = atan(q.y, q.x);
+
+    float diskMask = smoothstep(horizon * 1.55, horizon * 1.9, rd)
+      * (1.0 - smoothstep(horizon * 3.0, horizon * 3.7, rd));
+
+    float turbulence = fbm(vec2(ang * 3.2 + rd * 6.0 - uTime * 0.55, rd * 8.0 + uTime * 0.08));
+    float fine = fbm(vec2(ang * 7.0 - rd * 13.0 + uTime * 0.35, rd * 19.0));
+    float bands = 0.45 + 0.55 * turbulence + 0.18 * fine;
+
+    float doppler = 0.6 + 0.75 * max(0.0, cos(ang - 0.45));
+    float intensity = diskMask * bands * doppler;
+
+    float rn = rd / (horizon * 3.7);
+    vec3 inner = vec3(1.0, 1.0, 0.93);
+    vec3 mid = mix(vec3(1.0, 0.98, 0.9), uAccent, 0.5);
+    vec3 outer = vec3(0.85, 0.4, 0.08);
+    vec3 diskColor = mix(inner, mid, smoothstep(0.18, 0.55, rn));
+    diskColor = mix(diskColor, outer, smoothstep(0.6, 0.98, rn));
+    col += diskColor * intensity * 0.85;
+
+    // ---- photon ring + lime halo ----
+    float ring = smoothstep(0.009, 0.0, abs(r - horizon * 1.08));
+    col += vec3(1.0, 1.0, 0.86) * ring * 1.2;
+    col += uAccent * exp(-r * 8.0) * 0.22;
+
+    // ---- event horizon: pure black, hides the stars behind it ----
+    float hole = smoothstep(horizon + 0.005, horizon - 0.005, r);
+    col *= 1.0 - hole;
+
+    float alpha = clamp(max(max(col.r, col.g), col.b) * 1.7 + hole, 0.0, 1.0);
+    gl_FragColor = vec4(col, alpha);
   }
 `;
 
@@ -194,24 +137,6 @@ function supportsWebGL() {
 
 function dprFor(w: number, h: number) {
   return Math.min(2, Math.max(1, Math.sqrt(2_500_000 / Math.max(1, w * h))));
-}
-
-function glowTexture(hex: string, inner: number) {
-  const size = 256;
-  const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  g.addColorStop(0, hex);
-  g.addColorStop(inner, hex.replace(/[\d.]+\)$/, "0.35)"));
-  g.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, size, size);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  return tex;
 }
 
 export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
@@ -235,159 +160,53 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
     renderer.setPixelRatio(dprFor(width, height));
     renderer.setSize(width, height);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
+    renderer.toneMappingExposure = 1.08;
     host.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
-    camera.position.set(0, 0, 5.4);
-
-    const rig = new THREE.Group();
-    scene.add(rig);
-
-    /* ---- chrome numeral: “3” for the third dimension ---- */
-    const isMobile = width < 768;
-    const font = new FontLoader().parse(fontData as never);
-    const geometry = new TextGeometry("3", {
-      font,
-      size: 1.85,
-      depth: 0.6,
-      curveSegments: isMobile ? 12 : 20,
-      bevelEnabled: true,
-      bevelThickness: 0.08,
-      bevelSize: 0.065,
-      bevelSegments: 6,
-    });
-    geometry.center();
-    geometry.computeVertexNormals();
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
     const uniforms = {
       uTime: { value: 0 },
-      uAmp: { value: 0.25 },
+      uAspect: { value: 1 },
+      uPointer: { value: new THREE.Vector2() },
+      uCenter: { value: new THREE.Vector2() },
+      uSize: { value: 1 },
       uAccent: { value: ACCENT },
     };
+
+    const geometry = new THREE.PlaneGeometry(2, 2);
     const material = new THREE.ShaderMaterial({
       uniforms,
       vertexShader: VERT,
       fragmentShader: FRAG,
-    });
-
-    const blob = new THREE.Mesh(geometry, material);
-    rig.add(blob);
-
-    /* ---- backdrop halo ---- */
-    const haloRed = glowTexture("rgba(120,140,160,0.35)", 0.4);
-    const haloRedMat = new THREE.SpriteMaterial({
-      map: haloRed ?? undefined,
       transparent: true,
+      depthTest: false,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
-      opacity: 0.5,
     });
-    const halo = new THREE.Sprite(haloRedMat);
-    halo.scale.set(6, 6, 1);
-    halo.position.set(0.15, 0.05, -1.6);
-    rig.add(halo);
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
 
-    const haloAccent = glowTexture("rgba(212,255,92,0.5)", 0.22);
-    const haloAccentMat = new THREE.SpriteMaterial({
-      map: haloAccent ?? undefined,
-      color: ACCENT,
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-      opacity: 0.18,
-    });
-    const haloA = new THREE.Sprite(haloAccentMat);
-    haloA.scale.set(3.4, 3.4, 1);
-    haloA.position.set(-0.9, -1.1, -1.2);
-    rig.add(haloA);
-
-    /* ---- soft lime pool under the sculpture ---- */
-    const poolTex = glowTexture("rgba(212,255,92,0.3)", 0.45);
-    const poolMat = new THREE.SpriteMaterial({
-      map: poolTex ?? undefined,
-      color: ACCENT,
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-      opacity: 0.12,
-    });
-    const pool = new THREE.Sprite(poolMat);
-    pool.scale.set(3.4, 0.8, 1);
-    pool.position.set(0.05, -1.55, -0.7);
-    rig.add(pool);
-
-    /* ---- dust ---- */
-    const dustCount = isMobile ? 340 : 720;
-    const positions = new Float32Array(dustCount * 3);
-    const sizes = new Float32Array(dustCount);
-    const seeds = new Float32Array(dustCount);
-    for (let i = 0; i < dustCount; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 9;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 5.6;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 5 - 0.6;
-      sizes[i] = 0.18 + Math.random() * 0.62;
-      seeds[i] = Math.random();
-    }
-    const dustGeo = new THREE.BufferGeometry();
-    dustGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    dustGeo.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
-    dustGeo.setAttribute("aSeed", new THREE.BufferAttribute(seeds, 1));
-    const dustUniforms = {
-      uTime: { value: 0 },
-      uPointer: { value: new THREE.Vector2() },
-      uColor: { value: new THREE.Color("#cfd6d2") },
-    };
-    const dustMat = new THREE.ShaderMaterial({
-      uniforms: dustUniforms,
-      vertexShader: DUST_VERT,
-      fragmentShader: DUST_FRAG,
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    });
-    const dust = new THREE.Points(dustGeo, dustMat);
-    scene.add(dust);
-
-    /* ---- layout / responsive framing ---- */
     const layout = () => {
-      const aspect = width / height;
-      const portrait = aspect < 0.95;
-      if (portrait) {
-        rig.position.set(0.22, 1.42, 0);
-        rig.scale.setScalar(0.36);
-        camera.position.z = 5.9;
+      uniforms.uAspect.value = width / height;
+      if (width / height < 0.95) {
+        uniforms.uCenter.value.set(0.0, 0.36);
+        uniforms.uSize.value = 0.47;
       } else {
-        // Frame the sculpture in the right third of the canvas at any width:
-        // centre 82% across, radius 17% of the viewport width.
-        const halfH = Math.tan((camera.fov * Math.PI) / 360) * camera.position.z;
-        const halfW = halfH * aspect;
-        rig.position.set(0.66 * halfW, 0.16, 0);
-        rig.scale.setScalar((0.24 * halfW) / 1.42);
-        camera.position.z = 5.4;
+        uniforms.uCenter.value.set(0.44, 0.02);
+        uniforms.uSize.value = 0.58;
       }
     };
     layout();
 
-    /* ---- pointer + scroll ---- */
     const pointer = new THREE.Vector2();
     const pointerSmooth = new THREE.Vector2();
-    let scroll = 0;
-
     const onPointer = (event: PointerEvent) => {
       pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
       pointer.y = (event.clientY / window.innerHeight) * 2 - 1;
     };
-    const onScroll = () => {
-      const rect = host.getBoundingClientRect();
-      const total = Math.max(1, rect.height);
-      scroll = THREE.MathUtils.clamp(-rect.top / total, 0, 1);
-    };
     window.addEventListener("pointermove", onPointer, { passive: true });
-    window.addEventListener("scroll", onScroll, { passive: true });
 
-    /* ---- visibility ---- */
     let visible = true;
     const io = new IntersectionObserver(
       (entries) => {
@@ -404,7 +223,6 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
     };
     document.addEventListener("visibilitychange", onVisibility);
 
-    /* ---- loop ---- */
     let raf = 0;
     let running = false;
     let last = performance.now();
@@ -413,23 +231,8 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
     const renderFrame = (dt: number) => {
       elapsed += dt;
       uniforms.uTime.value = elapsed;
-      dustUniforms.uTime.value = elapsed;
-
-      pointerSmooth.lerp(pointer, 0.045);
-      dustUniforms.uPointer.value.copy(pointerSmooth);
-
-      const targetRotY = pointerSmooth.x * 0.2 + Math.sin(elapsed * 0.22) * 0.09;
-      const targetRotX = pointerSmooth.y * 0.12 + Math.sin(elapsed * 0.16) * 0.03;
-      rig.rotation.y += (targetRotY - rig.rotation.y) * 0.05;
-      rig.rotation.x += (targetRotX - rig.rotation.x) * 0.05;
-
-      dust.rotation.y += dt * 0.012;
-      dust.rotation.x = Math.sin(elapsed * 0.08) * 0.04;
-
-      camera.position.y = scroll * 0.35;
-      camera.position.z = (width / height < 0.95 ? 5.9 : 5.4) - scroll * 0.5;
-      camera.lookAt(0, scroll * 0.1, 0);
-
+      pointerSmooth.lerp(pointer, 0.05);
+      uniforms.uPointer.value.copy(pointerSmooth);
       renderer.render(scene, camera);
     };
 
@@ -453,22 +256,18 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
     };
 
     if (reduceMotion) {
-      // One static, well-composed frame; no loop, no listeners doing work.
-      elapsed = 2.2;
+      elapsed = 2.4;
       renderFrame(0);
     } else {
       start();
     }
 
-    /* ---- resize ---- */
     const ro = new ResizeObserver(() => {
       const w = host.clientWidth || window.innerWidth;
       const h = host.clientHeight || window.innerHeight;
       if (w === width && h === height) return;
       width = w;
       height = h;
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
       renderer.setPixelRatio(dprFor(width, height));
       renderer.setSize(width, height);
       layout();
@@ -481,20 +280,9 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
       io.disconnect();
       ro.disconnect();
       window.removeEventListener("pointermove", onPointer);
-      window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", onVisibility);
-
       geometry.dispose();
       material.dispose();
-      haloRedMat.dispose();
-      haloAccentMat.dispose();
-      poolMat.dispose();
-      dustGeo.dispose();
-      dustMat.dispose();
-      haloRed?.dispose();
-      haloAccent?.dispose();
-      poolTex?.dispose();
-
       renderer.dispose();
       renderer.forceContextLoss();
       renderer.domElement.remove();
