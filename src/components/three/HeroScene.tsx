@@ -73,35 +73,16 @@ const VERT = /* glsl */ `
     return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
   }
 
-  float disp(vec3 p) {
-    float t = uTime;
-    return snoise(p * 1.35 + vec3(0.0, t * 0.2, 0.0)) * 0.04 * uAmp;
-  }
-
-  vec3 displaced(vec3 p) {
-    vec3 n = normalize(p);
-    return p + n * disp(p);
+  float ripple(vec3 p) {
+    return snoise(p * 2.4 + vec3(0.0, uTime * 0.12, 0.0)) * 0.006 * uAmp;
   }
 
   void main() {
-    vec3 p = displaced(position);
-    vec3 n = normalize(position);
-
-    vec3 tangent = normalize(cross(n, vec3(0.0, 1.0, 0.0)) + vec3(0.0001));
-    vec3 bitangent = normalize(cross(n, tangent));
-
-    float eps = 0.04;
-    vec3 p0 = displaced(position);
-    vec3 p1 = displaced(position + tangent * eps);
-    vec3 p2 = displaced(position + bitangent * eps);
-    vec3 nn = normalize(cross(p1 - p0, p2 - p0));
-    if (dot(nn, n) < 0.0) nn = -nn;
-
-    vNormal = normalize(normalMatrix * nn);
+    vec3 p = position + normal * ripple(position);
+    vNormal = normalize(normalMatrix * normal);
     vec4 pView = modelViewMatrix * vec4(p, 1.0);
     vViewDir = normalize(-pView.xyz);
     vPos = pView.xyz;
-
     gl_Position = projectionMatrix * pView;
   }
 `;
@@ -155,7 +136,7 @@ const FRAG = /* glsl */ `
 
     // fresnel: chrome edges catch the horizon; a whisper of lime on the rim
     float fres = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), 3.0);
-    col += uAccent * fres * 0.07;
+    col += uAccent * fres * 0.1;
     col += vec3(0.4, 0.43, 0.46) * pow(fres, 1.1) * 0.55;
 
     // darken the core slightly so the rim reads
@@ -263,7 +244,9 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
     /* ---- chrome blob ---- */
     const isMobile = width < 768;
     const segments = isMobile ? 96 : 160;
-    const geometry = new THREE.SphereGeometry(1.32, segments, Math.round(segments * 0.72));
+    const geometry = new THREE.TorusKnotGeometry(0.9, 0.29, segments * 2, Math.round(segments * 0.35), 2, 3);
+    geometry.rotateX(Math.PI * 0.12);
+    geometry.rotateZ(Math.PI * 0.18);
     const uniforms = {
       uTime: { value: 0 },
       uAmp: { value: 1 },
@@ -276,50 +259,6 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
     });
     const blob = new THREE.Mesh(geometry, material);
     rig.add(blob);
-
-    /* ---- orbit hairlines ---- */
-    const ringGeoA = new THREE.TorusGeometry(1.92, 0.0045, 6, 220);
-    const ringMatA = new THREE.MeshBasicMaterial({
-      color: 0xdfe5e2,
-      transparent: true,
-      opacity: 0.22,
-    });
-    const ringA = new THREE.Mesh(ringGeoA, ringMatA);
-    ringA.rotation.set(1.22, -0.32, 0.18);
-    rig.add(ringA);
-
-    const ringGeoB = new THREE.TorusGeometry(2.3, 0.003, 6, 220);
-    const ringMatB = new THREE.MeshBasicMaterial({
-      color: 0xdfe5e2,
-      transparent: true,
-      opacity: 0.12,
-    });
-    const ringB = new THREE.Mesh(ringGeoB, ringMatB);
-    ringB.rotation.set(1.05, 0.42, -0.22);
-    rig.add(ringB);
-
-    /* ---- accent bead on the inner ring ---- */
-    const beadGeo = new THREE.SphereGeometry(0.038, 16, 16);
-    const beadMat = new THREE.MeshBasicMaterial({ color: ACCENT, toneMapped: false });
-    const bead = new THREE.Mesh(beadGeo, beadMat);
-    rig.add(bead);
-    const beadOrbit = new THREE.Group();
-    beadOrbit.rotation.copy(ringA.rotation);
-    rig.add(beadOrbit);
-    beadOrbit.add(bead);
-
-    const beadGlowTex = glowTexture("rgba(212,255,92,0.55)", 0.28);
-    const beadGlowMat = new THREE.SpriteMaterial({
-      map: beadGlowTex ?? undefined,
-      color: ACCENT,
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-      opacity: 0.75,
-    });
-    const beadGlow = new THREE.Sprite(beadGlowMat);
-    beadGlow.scale.setScalar(0.62);
-    bead.add(beadGlow);
 
     /* ---- backdrop halo ---- */
     const haloRed = glowTexture("rgba(120,140,160,0.35)", 0.4);
@@ -348,6 +287,21 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
     haloA.scale.set(3.4, 3.4, 1);
     haloA.position.set(-0.9, -1.1, -1.2);
     rig.add(haloA);
+
+    /* ---- soft lime pool under the sculpture ---- */
+    const poolTex = glowTexture("rgba(212,255,92,0.3)", 0.45);
+    const poolMat = new THREE.SpriteMaterial({
+      map: poolTex ?? undefined,
+      color: ACCENT,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      opacity: 0.12,
+    });
+    const pool = new THREE.Sprite(poolMat);
+    pool.scale.set(3.4, 0.8, 1);
+    pool.position.set(0.05, -1.55, -0.7);
+    rig.add(pool);
 
     /* ---- dust ---- */
     const dustCount = isMobile ? 340 : 720;
@@ -394,8 +348,8 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
         // centre 82% across, radius 17% of the viewport width.
         const halfH = Math.tan((camera.fov * Math.PI) / 360) * camera.position.z;
         const halfW = halfH * aspect;
-        rig.position.set(0.68 * halfW, 0.18, 0);
-        rig.scale.setScalar((0.25 * halfW) / 1.32);
+        rig.position.set(0.66 * halfW, 0.16, 0);
+        rig.scale.setScalar((0.24 * halfW) / 1.42);
         camera.position.z = 5.4;
       }
     };
@@ -453,12 +407,6 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
       const targetRotX = pointerSmooth.y * 0.2 + Math.sin(elapsed * 0.18) * 0.05;
       rig.rotation.y += (targetRotY - rig.rotation.y) * 0.05;
       rig.rotation.x += (targetRotX - rig.rotation.x) * 0.05;
-
-      ringA.rotation.z += dt * 0.06;
-      ringB.rotation.z -= dt * 0.045;
-      bead.rotation.set(0, 0, 0);
-      const angle = elapsed * 0.55;
-      bead.position.set(Math.cos(angle) * 1.92, Math.sin(angle) * 1.92, 0);
 
       dust.rotation.y += dt * 0.012;
       dust.rotation.x = Math.sin(elapsed * 0.08) * 0.04;
@@ -523,20 +471,14 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
 
       geometry.dispose();
       material.dispose();
-      ringGeoA.dispose();
-      ringMatA.dispose();
-      ringGeoB.dispose();
-      ringMatB.dispose();
-      beadGeo.dispose();
-      beadMat.dispose();
-      beadGlowMat.dispose();
       haloRedMat.dispose();
       haloAccentMat.dispose();
+      poolMat.dispose();
       dustGeo.dispose();
       dustMat.dispose();
-      beadGlowTex?.dispose();
       haloRed?.dispose();
       haloAccent?.dispose();
+      poolTex?.dispose();
 
       renderer.dispose();
       renderer.forceContextLoss();
