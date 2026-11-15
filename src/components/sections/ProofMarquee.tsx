@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import Marquee from "@/components/ui/Marquee";
 import { site } from "@/content/site";
 
@@ -14,14 +16,23 @@ const wordmarkStyles: Record<string, string> = {
 };
 
 export default function ProofMarquee() {
-  const items = site.proof.items.map((item) => (
-    <span
-      key={item.name}
-      className={`${wordmarkStyles[item.style] ?? wordmarkStyles.sans} whitespace-nowrap`}
-    >
-      {item.name}
-    </span>
-  ));
+  const items = site.proof.items.map((item) =>
+    item.logo ? (
+      <Image
+        key={item.name}
+        src={item.logo}
+        alt={item.name}
+        className="h-5 w-auto opacity-95 md:h-6"
+      />
+    ) : (
+      <span
+        key={item.name}
+        className={`${wordmarkStyles[item.style ?? "sans"]} whitespace-nowrap`}
+      >
+        {item.name}
+      </span>
+    ),
+  );
 
   return (
     <section aria-label={site.proof.label} className="relative border-y border-line bg-bg-deep/60">

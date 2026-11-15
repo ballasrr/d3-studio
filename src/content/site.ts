@@ -1,9 +1,19 @@
+import type { StaticImageData } from "next/image";
+
+import askoLogo from "@/assets/cases/asko-logo.png";
+
 /**
  * D3 — single content source.
  * Copy changes happen here, never inside JSX. Safe to edit without touching layout.
  */
 
 export type NavItem = { label: string; href: string };
+
+export type ProofItem = {
+  name: string;
+  style?: "display" | "sans" | "mono" | "outline";
+  logo?: StaticImageData;
+};
 
 export type Stat = {
   value: number;
@@ -117,11 +127,10 @@ export const site = {
   proof: {
     label: "Проекты, которые уже в работе",
     items: [
-      { name: "АСКО PLUS", style: "display" },
+      { name: "АСКО", logo: askoLogo },
       { name: "ШАХ LOUNGE", style: "sans" },
       { name: "E13-CHARGE", style: "mono" },
-      { name: "ASKO SUPPORT", style: "outline" },
-    ],
+    ] as ProofItem[],
   },
 
   manifesto: {
