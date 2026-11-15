@@ -97,7 +97,7 @@ export default function Services() {
               className="pointer-events-none absolute -top-12 right-0 size-40 rounded-full bg-accent/[0.07] blur-2xl"
             />
             <div className="flex items-start justify-between gap-4">
-              <span className="type-label pt-1">S.06</span>
+              <span className="type-label pt-1">S.05</span>
               <span className="grid size-11 place-items-center rounded-full border border-accent/40 text-accent transition-colors duration-200 group-hover:bg-accent group-hover:text-accent-ink">
                 <ArrowUpRight className="size-5" />
               </span>
