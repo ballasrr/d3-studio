@@ -8,6 +8,12 @@ import type { CaseStudy } from "@/content/site";
 import { ArrowRight, ArrowUpRight, Close } from "@/components/ui/icons";
 
 import askoShot from "@/assets/cases/asko-review.jpg";
+import e13Amount from "@/assets/cases/e13-amount.jpg";
+import e13Connectors from "@/assets/cases/e13-connectors.jpg";
+import e13Icon from "@/assets/cases/e13-icon.png";
+import e13Logo from "@/assets/cases/e13-logo.png";
+import e13Map from "@/assets/cases/e13-map.jpg";
+import e13Welcome from "@/assets/cases/e13-welcome.jpg";
 import shahAtmosphere from "@/assets/cases/shah-atmosphere.jpg";
 import shahBooking from "@/assets/cases/shah-booking.jpg";
 import shahFind from "@/assets/cases/shah-find.jpg";
@@ -33,6 +39,13 @@ const ASKO_GALLERY = [
     alt: "Админ-панель Asko Support: отзывы сети АЗС и ЭЗС",
     caption: "Отзывы, фильтры и статистика",
   },
+] as const;
+
+const E13_GALLERY = [
+  { src: e13Welcome, alt: "Экран приложения E13-CHARGE", caption: "Главный экран" },
+  { src: e13Map, alt: "Карта зарядных станций E13-CHARGE", caption: "Карта станций" },
+  { src: e13Connectors, alt: "Выбор коннектора на станции", caption: "Выбор коннектора" },
+  { src: e13Amount, alt: "Выбор суммы зарядки", caption: "Сумма зарядки" },
 ] as const;
 
 const DOMAINS: Record<CaseStudy["visual"], string> = {
@@ -564,96 +577,71 @@ function CommerceMockup() {
 
 /** 4 · E13-CHARGE — payment screen of the EV charging app (ЮKassa). */
 function MobileMockup() {
+  const { active, setActive, closeRef } = usePhotoLightbox(E13_GALLERY.length);
+
   return (
-    <div className="relative flex h-full w-full items-center justify-center gap-4">
-      <span aria-hidden className="pointer-events-none absolute inset-0 dot-field opacity-[0.1]" />
+    <>
+      <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-bg-deep">
+        <Image
+          src={E13_GALLERY[0].src}
+          alt=""
+          aria-hidden
+          fill
+          sizes="(max-width: 1024px) 92vw, 860px"
+          className="scale-110 object-cover opacity-35 blur-2xl"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-deep/80 via-transparent to-bg-deep/50" />
 
-      <PhoneFrame className="-rotate-[1.5deg]">
-        <div className="flex flex-1 flex-col p-1.5">
-          <div className="flex items-center justify-between">
-            <span className="font-display text-[0.4375rem] uppercase leading-none tracking-[0.06em] text-fg">
-              E13-CHARGE
-            </span>
-            <span className="size-1 rounded-full bg-accent animate-pulse-soft" />
-          </div>
-
-          <span className="mt-2 font-mono text-[0.375rem] uppercase leading-none tracking-[0.06em] text-faint">
-            Баланс
-          </span>
-          <span className="mt-0.5 font-display text-[0.5625rem] leading-none text-fg">1 240 ₽</span>
-
-          <span className="mt-1 flex h-4 items-center justify-center rounded-[4px] bg-accent font-mono text-[0.375rem] uppercase leading-none tracking-[0.04em] text-accent-ink">
-            Пополнить баланс
-          </span>
-
-          <div className="mt-1.5 rounded-[4px] border border-line p-1.5">
-            <div className="flex items-center justify-between gap-1">
-              <span className="font-mono text-[0.375rem] leading-none text-fg">ЭЗС №12</span>
-              <span className="font-mono text-[0.3125rem] leading-none text-accent">Свободна</span>
-            </div>
-            <span className="mt-1 block font-mono text-[0.3125rem] uppercase leading-none tracking-[0.04em] text-faint">
-              150 кВт · CCS2
-            </span>
-          </div>
-
-          <div className="mt-auto flex items-center justify-between border-t border-line pt-1">
-            <span className="font-mono text-[0.3125rem] leading-none text-faint">•• 4242</span>
-            <span className="font-mono text-[0.3125rem] uppercase leading-none tracking-[0.04em] text-accent">
-              ЮKassa
-            </span>
-          </div>
-
-          <div className="mt-1 flex items-center justify-between border-t border-line pt-1">
-            {["Зарядки", "Оплата", "Профиль"].map((tab, i) => (
-              <span
-                key={tab}
-                className={`font-mono text-[0.3125rem] uppercase leading-none tracking-[0.03em] ${
-                  i === 1 ? "text-accent" : "text-faint"
-                }`}
-              >
-                {tab}
-              </span>
-            ))}
-          </div>
+        <div className="pointer-events-none absolute left-3 top-3 z-10 flex items-center gap-2 rounded-full border border-line-strong/60 bg-bg-deep/70 px-2.5 py-1.5 backdrop-blur">
+          <Image src={e13Icon} alt="Иконка E13-CHARGE" width={24} height={24} className="rounded-[6px]" />
+          <Image src={e13Logo} alt="E13-CHARGE" className="h-4 w-auto" />
         </div>
-      </PhoneFrame>
 
-      <PhoneFrame className="hidden rotate-[1.5deg] sm:flex">
-        <div className="flex flex-1 flex-col p-1.5">
-          <div className="flex items-center justify-between">
-            <span className="font-display text-[0.4375rem] leading-none text-fg">ЭЗС №12</span>
-            <span className="rounded-full border border-line px-1 py-0.5 font-mono text-[0.3125rem] leading-none text-faint">
-              CCS2
+        <PhoneFrame className="z-10 -rotate-[1.5deg]">
+          <button
+            type="button"
+            onClick={() => setActive(0)}
+            aria-label="Открыть скриншоты приложения E13-CHARGE"
+            className="group/photo relative mt-1 min-h-0 flex-1 cursor-zoom-in overflow-hidden"
+          >
+            <Image
+              src={E13_GALLERY[0].src}
+              alt="Экран приложения E13-CHARGE"
+              fill
+              sizes="(max-width: 1024px) 40vw, 180px"
+              className="object-cover object-top transition-transform duration-500 group-hover/photo:scale-[1.02]"
+            />
+            <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-line-strong bg-bg-deep/85 px-2 py-1 font-mono text-[0.375rem] uppercase tracking-[0.06em] text-fg opacity-0 backdrop-blur transition-opacity group-hover/photo:opacity-100">
+              {E13_GALLERY.length} экрана · открыть
             </span>
-          </div>
-          <span className="mt-2 font-mono text-[0.375rem] uppercase leading-none tracking-[0.06em] text-faint">
-            Мощность
-          </span>
-          <span className="mt-0.5 font-display text-[0.5rem] leading-none text-fg">150 кВт</span>
-          <span className="mt-1 font-mono text-[0.3125rem] leading-none text-accent">Свободна</span>
+          </button>
+        </PhoneFrame>
 
-          <div className="mt-2 flex flex-col gap-1">
-            {[
-              ["Коннектор", "CCS2"],
-              ["Сеть", "E13"],
-            ].map(([label, value]) => (
-              <span
-                key={label}
-                className="flex items-center justify-between border-b border-line pb-1 last:border-b-0 last:pb-0"
-              >
-                <span className="font-mono text-[0.3125rem] leading-none text-faint">{label}</span>
-                <span className="font-mono text-[0.3125rem] leading-none text-fg">{value}</span>
-              </span>
-            ))}
-          </div>
+        <div className="pointer-events-none absolute bottom-2 right-3 z-10 rounded-full border border-line bg-bg-deep/85 px-2 py-1 font-mono text-[0.375rem] uppercase tracking-[0.06em] text-muted backdrop-blur">
+          Приложение · iOS / Android
         </div>
-      </PhoneFrame>
-
-      <div className="absolute bottom-[13%] right-[6%] hidden items-center gap-1 rounded-full border border-line bg-bg-deep/90 px-2 py-1 font-mono text-[0.375rem] uppercase leading-none tracking-[0.06em] text-muted backdrop-blur-sm md:flex">
-        <LockIcon />
-        ЮKassa · оплата
       </div>
-    </div>
+
+      {active !== null
+        ? createPortal(
+            <PhotoLightbox
+              index={active}
+              images={E13_GALLERY}
+              title="E13-CHARGE"
+              closeRef={closeRef}
+              onClose={() => setActive(null)}
+              onPrev={() =>
+                setActive((i) => (i === null ? i : (i - 1 + E13_GALLERY.length) % E13_GALLERY.length))
+              }
+              onNext={() =>
+                setActive((i) => (i === null ? i : (i + 1) % E13_GALLERY.length))
+              }
+              onSelect={(index) => setActive(index)}
+            />,
+            document.body,
+          )
+        : null}
+    </>
   );
 }
 
