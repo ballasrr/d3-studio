@@ -75,7 +75,10 @@ const VERT = /* glsl */ `
 
   float disp(vec3 p) {
     float t = uTime;
-    return snoise(p * 1.35 + vec3(0.0, t * 0.2, 0.0)) * 0.04 * uAmp;
+    // broad, slow asymmetry plus a fine ripple — liquid metal, not crumpled foil
+    float broad = snoise(p * 0.82 + vec3(0.0, t * 0.06, 0.0)) * 0.014;
+    float fine = snoise(p * 2.6 + vec3(t * 0.04, 0.0, 0.0)) * 0.0012;
+    return (broad + fine) * uAmp;
   }
 
   vec3 displaced(vec3 p) {
@@ -90,7 +93,7 @@ const VERT = /* glsl */ `
     vec3 tangent = normalize(cross(n, vec3(0.0, 1.0, 0.0)) + vec3(0.0001));
     vec3 bitangent = normalize(cross(n, tangent));
 
-    float eps = 0.04;
+    float eps = 0.06;
     vec3 p0 = displaced(position);
     vec3 p1 = displaced(position + tangent * eps);
     vec3 p2 = displaced(position + bitangent * eps);
@@ -116,31 +119,36 @@ const FRAG = /* glsl */ `
   varying vec3 vViewDir;
   varying vec3 vPos;
 
-  // Dark-metal studio: almost black base, cold steel horizon and lime energy
-  // strips reflected in the surface. Chrome reads through contrast, not brightness.
+  // Dark studio built from rectangular light panels, not latitude bands:
+  // chrome reads through the hard edges of the reflected softboxes.
   vec3 env(vec3 r) {
-    float y = r.y;
-    vec3 col = vec3(0.003, 0.005, 0.007);
-    col = mix(col, vec3(0.016, 0.022, 0.024), smoothstep(-0.95, -0.35, y));
-    col = mix(col, vec3(0.38, 0.44, 0.45), smoothstep(-0.3, -0.22, y) * (1.0 - smoothstep(0.18, 0.24, y)));
-    col = mix(col, vec3(0.018, 0.025, 0.027), smoothstep(0.2, 0.28, y) * (1.0 - smoothstep(0.5, 0.58, y)));
-    col = mix(col, vec3(0.22, 0.26, 0.27), smoothstep(0.55, 0.62, y));
+    vec3 col = vec3(0.002, 0.003, 0.004);
+    col = mix(col, vec3(0.018, 0.023, 0.025), smoothstep(-1.0, -0.2, r.y));
 
-    // thin cool softbox reflected in the upper metal
-    float winX = smoothstep(-0.75, -0.6, r.x) * (1.0 - smoothstep(0.05, 0.2, r.x));
-    float winY = smoothstep(0.32, 0.38, y) * (1.0 - smoothstep(0.58, 0.66, y));
-    col += vec3(0.45, 0.5, 0.52) * winX * winY;
+    // faint horizon
+    col += vec3(0.1, 0.12, 0.13) * smoothstep(0.02, 0.0, abs(r.y + 0.16)) * 0.5;
 
-    // bright lime energy strip
-    float strip = smoothstep(0.05, 0.0, abs(r.x * 0.8 + r.z * 0.5 - 0.55));
-    col += vec3(0.24, 0.36, 0.06) * strip * smoothstep(-0.25, 0.15, y) * (1.0 - smoothstep(0.35, 0.55, y)) * 0.5;
+    // main softbox, upper-left
+    float key = smoothstep(-0.72, -0.6, r.x) * (1.0 - smoothstep(0.22, 0.34, r.x))
+      * smoothstep(-0.12, -0.02, r.y) * (1.0 - smoothstep(0.5, 0.58, r.y));
+    col += vec3(0.62, 0.66, 0.68) * key;
 
-    // lime kicker from the right
-    float lime = pow(max(dot(normalize(r), normalize(vec3(0.85, 0.25, 0.35))), 0.0), 16.0);
-    col += vec3(0.2, 0.32, 0.05) * lime * 0.35;
+    // secondary panel, right
+    float fill = smoothstep(0.22, 0.3, r.x) * (1.0 - smoothstep(0.55, 0.65, r.x))
+      * smoothstep(-0.25, -0.12, r.y) * (1.0 - smoothstep(0.3, 0.4, r.y));
+    col += vec3(0.2, 0.23, 0.24) * fill;
 
-    // faint warm bounce from below
-    col += vec3(0.05, 0.04, 0.03) * smoothstep(0.1, -0.9, y);
+    // thin top strip
+    float top = smoothstep(0.55, 0.58, r.y) * (1.0 - smoothstep(0.62, 0.65, r.y));
+    col += vec3(0.3, 0.34, 0.36) * top;
+
+    // lime vertical panel, far right
+    float lime = smoothstep(0.62, 0.66, r.x) * (1.0 - smoothstep(0.72, 0.78, r.x))
+      * smoothstep(-0.3, 0.0, r.y) * (1.0 - smoothstep(0.5, 0.7, r.y));
+    col += vec3(0.3, 0.46, 0.06) * lime * 0.8;
+
+    // faint warm floor bounce
+    col += vec3(0.04, 0.035, 0.025) * smoothstep(0.2, -0.9, r.y);
 
     return col;
   }
@@ -151,24 +159,24 @@ const FRAG = /* glsl */ `
     vec3 R = reflect(-V, N);
 
     vec3 col = env(R);
-    col *= 0.6;
+    col *= 0.9;
 
-    // tight cold specular sheen
-    float spec = pow(max(dot(R, normalize(vec3(-0.4, 0.8, 0.6))), 0.0), 90.0);
-    col += vec3(0.75, 0.82, 0.8) * spec * 0.8;
+    // tight cold specular
+    float spec = pow(max(dot(R, normalize(vec3(-0.35, 0.85, 0.55))), 0.0), 140.0);
+    col += vec3(0.9, 0.95, 0.94) * spec * 0.9;
 
-    // pulsing lime energy on the edges
-    float pulse = 0.78 + 0.22 * sin(uTime * 1.6);
-    float fres = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), 2.6);
-    col += uAccent * fres * 0.14 * pulse;
-    col += vec3(0.2, 0.3, 0.07) * pow(fres, 1.8) * 0.2 * pulse;
+    // lime energy only on the rim, gently pulsing
+    float pulse = 0.8 + 0.2 * sin(uTime * 1.3);
+    float fres = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), 3.1);
+    col += uAccent * fres * 0.12 * pulse;
+    col += vec3(0.3, 0.35, 0.37) * pow(fres, 1.1) * 0.55;
 
-    // hot lime glint, like a reflected power source
-    float glint = pow(max(dot(R, normalize(vec3(0.7, 0.45, 0.4))), 0.0), 36.0);
-    col += vec3(0.72, 1.0, 0.28) * glint * 0.8 * pulse;
+    // one hot lime reflection glint
+    float glint = pow(max(dot(R, normalize(vec3(0.72, 0.4, 0.42))), 0.0), 48.0);
+    col += vec3(0.65, 0.95, 0.22) * glint * 0.7 * pulse;
 
-    // darken the core so the lime rim reads
-    col *= mix(0.72, 1.08, smoothstep(0.0, 0.9, fres));
+    // deep core, bright silhouette
+    col *= mix(0.74, 1.05, smoothstep(0.0, 0.92, fres));
 
     gl_FragColor = vec4(col, 1.0);
 
@@ -291,7 +299,7 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
     const ringMatA = new THREE.MeshBasicMaterial({
       color: 0x9fb26a,
       transparent: true,
-      opacity: 0.28,
+      opacity: 0.2,
     });
     const ringA = new THREE.Mesh(ringGeoA, ringMatA);
     ringA.rotation.set(1.22, -0.32, 0.18);
@@ -301,7 +309,7 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
     const ringMatB = new THREE.MeshBasicMaterial({
       color: 0x64734a,
       transparent: true,
-      opacity: 0.16,
+      opacity: 0.05,
     });
     const ringB = new THREE.Mesh(ringGeoB, ringMatB);
     ringB.rotation.set(1.05, 0.42, -0.22);
@@ -337,7 +345,7 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
-      opacity: 0.45,
+      opacity: 0.28,
     });
     const halo = new THREE.Sprite(haloRedMat);
     halo.scale.set(6, 6, 1);
@@ -351,12 +359,27 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
-      opacity: 0.2,
+      opacity: 0.12,
     });
     const haloA = new THREE.Sprite(haloAccentMat);
     haloA.scale.set(3.4, 3.4, 1);
     haloA.position.set(-0.9, -1.1, -1.2);
     rig.add(haloA);
+
+    /* ---- soft energy pool under the sculpture ---- */
+    const poolTex = glowTexture("rgba(212,255,92,0.3)", 0.45);
+    const poolMat = new THREE.SpriteMaterial({
+      map: poolTex ?? undefined,
+      color: ACCENT,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      opacity: 0.1,
+    });
+    const pool = new THREE.Sprite(poolMat);
+    pool.scale.set(4.2, 1.0, 1);
+    pool.position.set(0.05, -1.9, -0.5);
+    rig.add(pool);
 
     /* ---- dust ---- */
     const dustCount = isMobile ? 340 : 720;
@@ -541,11 +564,13 @@ export default function HeroScene({ reduced = false }: { reduced?: boolean }) {
       beadGlowMat.dispose();
       haloRedMat.dispose();
       haloAccentMat.dispose();
+      poolMat.dispose();
       dustGeo.dispose();
       dustMat.dispose();
       beadGlowTex?.dispose();
       haloRed?.dispose();
       haloAccent?.dispose();
+      poolTex?.dispose();
 
       renderer.dispose();
       renderer.forceContextLoss();
